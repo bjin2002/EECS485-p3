@@ -6,6 +6,8 @@ import insta485
 @insta485.app.route('/api/v1/')
 def get_api():
     """REST API for api/v1."""
+    # Every REST API route should return 403 if a user is not authenticated.
+    # The only exception is /api/v1/, which is publicly available.
     context = {
         "comments": "/api/v1/comments/",
         "likes": "/api/v1/likes/",
@@ -18,54 +20,59 @@ def get_api():
 @insta485.app.route('/api/v1/posts/')
 def get_post_api():
     """REST API for api/v1/posts."""
-    if "logname" in flask.session or insta485.api.helper.valid_user():
-        connection = insta485.model.get_db()
-        cur = connection.execute(
-
-        )
-    else:
+    # Every REST API route should return 403 if a user is not authenticated.
+    if "logname" not in flask.session or not insta485.api.helper.valid_user():
         flask.abort(403)
+
+    connection = insta485.model.get_db()
 
 
 @insta485.app.route('/api/v1/posts/?size=N')
 def get_newest_posts():
-  """REST API for api/v1/posts/?size=N'"""
-  pass
+    """REST API for api/v1/posts/?size=N'"""
+    # Every REST API route should return 403 if a user is not authenticated.
+    if "logname" not in flask.session or not insta485.api.helper.valid_user():
+        flask.abort(403)
+
+    connection = insta485.model.get_db()
+
+    pass
+
 
 @insta485.app.route('/api/v1/posts/?page=N')
 def get_nth_page():
-  """REST API for api/v1/posts/?page=N'"""
-  pass
+    """REST API for api/v1/posts/?page=N'"""
+    # Every REST API route should return 403 if a user is not authenticated.
+    if "logname" not in flask.session or not insta485.api.helper.valid_user():
+        flask.abort(403)
+
+    connection = insta485.model.get_db()
+
+    pass
+
 
 @insta485.app.route('/api/v1/posts/?postid_lte=N')
 def get_post_ids():
-  """REST API for api/v1/posts/?postid_lte=N"""
-  pass
+    """REST API for api/v1/posts/?postid_lte=N"""
+    # Every REST API route should return 403 if a user is not authenticated.
+    if "logname" not in flask.session or not insta485.api.helper.valid_user():
+        flask.abort(403)
+
+    connection = insta485.model.get_db()
+
+    pass
+
 
 @insta485.app.route('/api/v1/posts/<postid>/')
 def get_post():
-  """REST API for api/v1/posts/<postid>/"""
-  pass
+    """REST API for api/v1/posts/<postid>/"""
+    # Every REST API route should return 403 if a user is not authenticated.
+    if "logname" not in flask.session or not insta485.api.helper.valid_user():
+        flask.abort(403)
 
-@insta485.app.route('/api/v1/likes/?postid=<postid>')
-def create_like():
-  """REST API for api/v1/likes/?postid=<postid>"""
-  pass
+    connection = insta485.model.get_db()
 
-@insta485.app.route('/api/v1/likes/?<likeid>/')
-def delete_like():
-  """REST API for api/v1/likes/?<likeid>/"""
-  pass
-
-@insta485.app.route('/api/v1/comments/?postid=<postid>')
-def create_comment():
-  """REST API for api/v1/comments/?postid=<postid>"""
-  pass
-
-@insta485.app.route('/api/v1/comments/<commentid>/')
-def delete_comment():
-  """REST API for api/v1/comments/<commentid>/"""
-  pass
+    pass
 
 
 # @insta485.app.route('/api/v1/posts/<int:postid_url_slug>/')
@@ -94,5 +101,5 @@ def delete_comment():
 #         "url": flask.request.path,
 #     }
 #     return flask.jsonify(**context)
-#   else: 
+#   else:
 #     flask.abort(403)
