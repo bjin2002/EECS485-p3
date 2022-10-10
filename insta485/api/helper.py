@@ -18,6 +18,8 @@ def valid_user():
             (flask.request.form['username'], )
         )
         result = cur.fetchone()
+        if len(result) == 0:
+            return False
         user_password = result['password']
         entered_password = flask.request.authorization['password']
         up_split = user_password.split('$')

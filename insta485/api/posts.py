@@ -1,7 +1,6 @@
 """REST API for posts."""
 import flask
 import insta485
-import helper
 
 @insta485.app.route('/api/v1/')
 def get_api():
@@ -16,25 +15,28 @@ def get_api():
 
 
 @insta485.app.route('/api/v1/posts/')
-def get_post():
+def get_post_api():
   """REST API for api/v1/posts."""
-  if "logname" in flask.session or helper.valid_user():
+  if "logname" in flask.session or insta485.api.helper.valid_user():
     connection = insta485.model.get_db()
     cur = connection.execute(
 
     )
+  else:
+    flask.abort(403)
 
-
-@insta485.app.route('/api/v1/posts/<postid>/')
+@insta485.app.route('/api/v1/posts/<int:postid_url_slug>/')
 def get_post(postid_url_slug):
-  if "logname" in flask.session or helper.valid_user():
+  if "logname" in flask.session or insta485.api.helper.valid_user():
+    dict = {}
     connection = insta485.model.get_db()
     cur = connection.execute(
-      "SELECT password "
-      "FROM users "
-      "WHERE username = ?",
-      (flask.request.form['username'], )
+      "SELECT * "
+      "FROM comments "
+      "WHERE postid = ?",
+      (postid_url_slug, )
     )
+    result = cur.fetchall()
     context = {
         "created": "2017-09-28 04:33:28",
         "imgUrl": "/uploads/122a7d27ca1d7420a1072f695d9290fad4501a41.jpg",
@@ -45,3 +47,5 @@ def get_post(postid_url_slug):
         "url": flask.request.path,
     }
     return flask.jsonify(**context)
+  else: 
+    flask.abort(403)
