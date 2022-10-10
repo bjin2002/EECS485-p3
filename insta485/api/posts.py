@@ -27,30 +27,44 @@ def get_post_api():
 
 @insta485.app.route('/api/v1/posts/?size=N')
 def get_newest_posts():
+  """REST API for api/v1/posts/?size=N'"""
   pass
 
 @insta485.app.route('/api/v1/posts/?page=N')
 def get_nth_page():
+  """REST API for api/v1/posts/?page=N'"""
   pass
 
 @insta485.app.route('/api/v1/posts/?postid_lte=N')
 def get_post_ids():
+  """REST API for api/v1/posts/?postid_lte=N"""
   pass
 
-@insta485.app.route('/api/v1/posts/?postid=<postid>')
-def create_like():
+@insta485.app.route('/api/v1/posts/<postid>/')
+def get_post():
+  """REST API for api/v1/posts/<postid>/"""
   pass
+
+
+@insta485.app.route('/api/v1/likes/?postid=<postid>')
+def create_like():
+  """REST API for api/v1/likes/?postid=<postid>"""
+  pass
+
 
 @insta485.app.route('/api/v1/likes/?<likeid>/')
 def delete_like():
+  """REST API for api/v1/likes/?<likeid>/"""
   pass
 
 @insta485.app.route('/api/v1/comments/?postid=<postid>')
 def create_comment():
+  """REST API for api/v1/comments/?postid=<postid>"""
   pass
 
 @insta485.app.route('/api/v1/comments/<commentid>/')
 def delete_comment():
+  """REST API for api/v1/comments/<commentid>/"""
   pass
 
 
