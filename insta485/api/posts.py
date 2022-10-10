@@ -28,6 +28,7 @@ def get_post_api():
 @insta485.app.route('/api/v1/posts/<int:postid_url_slug>/')
 def get_post(postid_url_slug):
   if "logname" in flask.session or insta485.api.helper.valid_user():
+    username = ""
     dict = {}
     connection = insta485.model.get_db()
     cur = connection.execute(
@@ -36,7 +37,12 @@ def get_post(postid_url_slug):
       "WHERE postid = ?",
       (postid_url_slug, )
     )
+    # TODO: general idea, flesh out later
     result = cur.fetchall()
+    for comment in result:
+      if comment.owner == username:
+        
+
     context = {
         "created": "2017-09-28 04:33:28",
         "imgUrl": "/uploads/122a7d27ca1d7420a1072f695d9290fad4501a41.jpg",

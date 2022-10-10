@@ -15,7 +15,7 @@ def valid_user():
             "SELECT password "
             "FROM users "
             "WHERE username = ?",
-            (flask.request.form['username'], )
+            (username )
         )
         result = cur.fetchone()
         if len(result) == 0:
