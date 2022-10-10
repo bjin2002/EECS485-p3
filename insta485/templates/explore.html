@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <title>
+        insta485
+    </title>
+</head>
+
+<body>
+    <a href="/">
+        LOGO
+        <img src="/images/JG3.jpg" alt="Jeff Goldblum 3">
+    </a>
+
+    <!--If Logged in-->
+    <div class="rightCorner">
+        <a href="/explore/">explore</a>
+        <a href="{{ '/users/%s/'%logname }}">{{logname}}</a>
+    </div>
+
+    <h1>Discover People</h1>
+
+    {% for x in users %}
+    <div class="no_following">
+        <img src="{{url_for('image_render', filename = '%s'%x.filename )}}" alt="user image">
+
+        <a href="{{ '/users/%s/'%x.username }}">{{x.username}}</a>
+        <form action="{{url_for('following_target', target=url_for('show_explore'))}}" method="post"
+            enctype="multipart/form-data">
+            <input type="submit" name="follow" value="follow" />
+            <input type="hidden" name="username" value="{{ '%s'%x.username }}" />
+            <input type="hidden" name="operation" value="follow" />
+        </form>
+    </div>
+    <!-- DO NOT CHANGE THIS (aside from where we say 'FIXME') -->
+
+    {% endfor %}
+
+</body>

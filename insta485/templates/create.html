@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <title>insta485</title>
+</head>
+
+<body>
+    <!--Navbar-->
+    <ul>
+        <li style="float:left"><a href="/">Insta485</a></li>
+    </ul>
+
+    <br>
+    <br>
+
+    <!-- DO NOT CHANGE THIS (aside from styling) -->
+    <form action="{{url_for('account_target', target=url_for('show_index'))}}" method="post"
+        enctype="multipart/form-data">
+        <label>Photo:</label>
+        <input type="file" name="file" />
+        <br>
+        <label>Name:</label>
+        <input type="text" name="fullname" />
+        <br>
+        <label>Username:</label>
+        <input type="text" name="username" />
+        <br>
+        <label>Email:</label>
+        <input type="text" name="email" />
+        <br>
+        <label>Password:</label>
+        <input type="password" name="password" />
+        <br>
+        <input type="submit" name="signup" value="sign up" />
+        <input type="hidden" name="operation" value="create" />
+        <p>Have an account?</p>
+        <a href="/accounts/login/">Log in!</a>
+    </form>
+
+</body>
+
+</html>

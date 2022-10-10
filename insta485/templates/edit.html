@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <title>insta485</title>
+</head>
+
+<body>
+    <!--Navbar-->
+    <ul>
+        <li style="float:left"><a href="/">Insta485</a></li>
+    </ul>
+
+    <br>
+    <br>
+
+    <div class="rightCorner">
+        <a href="/explore/">explore</a>
+        <a href="{{ '/users/%s/'%logname }}">{{logname}}</a>
+    </div>
+
+    <img src="{{url_for('image_render', filename = '%s'%user.filename)}}" alt="pfp" />
+    <h1>{{logname}}</h1>
+
+    <!-- DO NOT CHANGE THIS (aside from where we say 'FIXME') -->
+    <form action="{{url_for('account_target', target=url_for('show_edit'))}}" method="post"
+        enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*" />
+        <label>Full Name:</label>
+        <input type="text" name="fullname" value="{{ '%s'%user.fullname }}" />
+        <label>Email:</label>
+        <input type="text" name="email" value="{{ '%s'%user.email }}" />
+        <input type="submit" name="update" value="submit" />
+        <input type="hidden" name="operation" value="edit_account" />
+        <a href="/accounts/password/"> Change password </a>
+        <a href="/accounts/delete/"> Delete account </a>
+    </form>
+
+
+
+</body>
+
+</html>

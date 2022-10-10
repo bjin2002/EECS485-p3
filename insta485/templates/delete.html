@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <title>insta485</title>
+</head>
+
+<body>
+    <!--Navbar-->
+    <ul>
+        <li style="float:left"><a href="/">Insta485</a></li>
+    </ul>
+
+    <!--If Logged in-->
+    <div class="rightCorner">
+        <a href="/explore/">explore</a>
+        <a href="{{ '/users/%s/'%logname }}">{{logname}}</a>
+    </div>
+
+    <br>
+    <br>
+
+    <!-- DO NOT CHANGE THIS -->
+    <form action="{{url_for('account_target', target=url_for('show_create'))}}" method="post"
+        enctype="multipart/form-data">
+        <input type="submit" name="delete" value="confirm delete account" />
+        <input type="hidden" name="operation" value="delete" />
+    </form>
+
+</body>
+
+</html>

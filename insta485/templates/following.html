@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <title>
+        insta485
+    </title>
+</head>
+
+
+<body>
+    <a href="/">
+        LOGO
+        <img src="/images/JG3.jpg" alt="Jeff Goldblum 3">
+    </a>
+
+    <!--If Logged in-->
+    <div class="rightCorner">
+        <a href="/explore/">explore</a>
+        <a href="{{ '/users/%s/'%logname }}">{{logname}}</a>
+    </div>
+
+    <h1>Following</h1>
+
+    {% for x in users %}
+    <div class="following">
+        <img src="{{url_for('image_render', filename = '%s'%x.filename )}}" alt="user image">
+
+        <a href="{{ '/users/%s/'%x.username }}">{{x.username}}</a>
+        {% if logname == x.username %}
+        <!-- Do nothing if logname and username are the same -->
+        {% elif x.logname_follows_username %}
+        following
+        <!-- unfollow button -->
+        <form
+            action="{{url_for('following_target', target=url_for('show_user_following', username = '%s'%page_username))}}"
+            method="post" enctype="multipart/form-data">
+            <input type="submit" name="unfollow" value="unfollow" />
+            <input type="hidden" name="username" value="{{ '%s'%x.username }}" />
+            <input type="hidden" name="operation" value="unfollow" />
+        </form>
+        {% else %}
+        not following
+        <!-- follow button -->
+        <form
+            action="{{url_for('following_target', target=url_for('show_user_following', username = '%s'%page_username))}}"
+            method="post" enctype="multipart/form-data">
+            <input type="submit" name="follow" value="follow" />
+            <input type="hidden" name="username" value="{{ '%s'%x.username }}" />
+            <input type="hidden" name="operation" value="follow" />
+        </form>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+</body>
+
+</html>

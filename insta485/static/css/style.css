@@ -1,0 +1,48 @@
+/*
+css style from eecs485 p1
+@nreichen
+ */
+
+body {
+    background-color: lightblue;
+}
+
+h1 {
+    color: navy;
+    margin-left: 20px;
+}
+
+a.one:link {
+    background-color: #f44336;
+    color: white;
+    padding: 14px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
+
+img {
+    width: 20%;
+    margin: auto;
+    display: block;
+}
+
+.post {
+    border: 4px solid black;
+    margin: auto;
+}
+
+.rightCorner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    text-align: right;
+}
+
+.time {
+
+    position: relative;
+    right: 0;
+    text-align: right;
+
+}

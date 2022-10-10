@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <title>
+        insta485
+    </title>
+</head>
+
+
+<body>
+    <a href="/">
+        LOGO
+        <img src="/images/JG3.jpg" alt="Jeff Goldblum 3">
+    </a>
+
+    <!--If Logged in-->
+    <div class="rightCorner">
+        <a href="/explore/">explore</a>
+        <a href="{{ '/users/%s/'%logname }}">{{logname}}</a>
+    </div>
+
+    <div class="username">
+        {{user.username}}
+    </div>
+
+    <!-- If it's the users own page, include... -->
+    {% if logname == user.username %}
+    <!-- Link to accounts/edits -->
+    <div class="accountEdit">
+        <a href="/accounts/edit/">
+            Edit profile
+        </a>
+    </div>
+
+    <!-- HTML Form to POST to /acccounts/logout -->
+    <div class="logoutButton">
+        <!-- DO NOT CHANGE THIS (aside from where we say 'FIXME') -->
+        <form action="{{url_for('logout')}}" method="post" enctype="multipart/form-data">
+            <input type="submit" name="logout" value="Logout" />
+        </form>
+    </div>
+
+    {% endif %}
+
+    <div class="relationship">
+        {% if logname == user.username %}
+        <!-- Do nothing if logname and username are the same -->
+        {% elif user.logname_follows_username == 1 %}
+        following
+        {% else %}
+        not following
+        {% endif %}
+
+        {% if total_posts == 1 %}
+        {{total_posts}} post
+        {% else %}
+        {{total_posts}} posts
+        {% endif %}
+
+        <a href="{{ '/users/%s/followers/'%user.username }}">
+            {% if followers == 1 %}
+            {{followers}} follower
+            {% else %}
+            {{followers}} followers
+            {% endif %}
+        </a>
+        <a href="{{ '/users/%s/following/'%user.username }}">
+            {{following}} following
+        </a>
+    </div>
+
+    <div class="fullname">
+        {{user.fullname}}
+    </div>
+
+    {% for post in posts %}
+    <div class="post">
+        <a href="{{ '/posts/%s/'%post.postid }}">
+            <img src="{{url_for('image_render', filename = '%s'%post.filename)}}" alt="post">
+        </a>
+    </div>
+    {% endfor %}
+
+    <!-- If it's the users own page, include... -->
+    {% if logname == user.username %}
+
+    <!-- File upload form for creating a new post that POSTS to /posts/ -->
+    <!-- DO NOT CHANGE THIS (aside from where we say 'FIXME') -->
+    <form action="{{url_for('posts_target', target=url_for('show_user', username = '%s'%user.username))}}" method="post"
+        enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*" required />
+        <input type="submit" name="create_post" value="upload new post" />
+        <input type="hidden" name="operation" value="create" />
+    </form>
+    {% endif %}
+
+</body>
+
+</html>

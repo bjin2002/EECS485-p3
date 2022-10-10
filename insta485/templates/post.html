@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <title>
+        insta485
+    </title>
+</head>
+
+<body>
+    <a href="/">
+        LOGO
+        <img src="/images/JG3.jpg" alt="Jeff Goldblum 3">
+    </a>
+
+    <!--If Logged in-->
+    <div class="rightCorner">
+        <a href="/explore/">explore</a>
+        <a href="{{ '/users/%s/'%logname }}">{{logname}}</a>
+    </div>
+
+    <div class="post">
+        <div class="profilePic">
+            <a href="{{ '/users/%s/'%post.owner }}">
+                <img src="{{url_for('image_render', filename = '%s'%post.pro_pic)}}" alt="profile pic">
+                {{post.owner}}
+            </a>
+        </div>
+
+        <div class="time">
+            <a href="{{ '/posts/%s/'%post.postid }}">
+                {{post.created}}
+            </a>
+        </div>
+
+        <img src="{{url_for('image_render', filename = '%s'%post.filename)}}" alt="post">
+        {% if post.post_likes == 1 %}
+        {{post.post_likes}} like
+
+        {% else %}
+        {{post.post_likes}} likes
+
+        {% endif %}
+
+        <div class="comments">
+            {% for comment in comments %}
+            <div>
+                <a href="{{ '/users/%s/'%comment.owner }}">
+                    {{comment.owner}}
+                </a>
+                {{comment.text}}
+
+                {% if comment.owner == logname %}
+                <!-- delete comment (if owned by user) -->
+                <form action="{{ url_for('comments_target', target=url_for('show_post', postid = '%s'%post.postid))}}"
+                    method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="operation" value="delete" />
+                    <input type="hidden" name="commentid" value="{{ '%s'%comment.commentid }}" />
+                    <input type="submit" name="uncomment" value="delete" />
+                </form>
+                {% endif %}
+
+            </div>
+            {% endfor %}
+        </div>
+
+        <!--Like, Unlike, Comment-->
+        {% if post.post_liked_by_logname == 1 %}
+        <!--unlike-->
+        <form action="{{url_for('likes_target', target=url_for('show_post', postid = '%s'%post.postid))}}" method="post"
+            enctype="multipart/form-data">
+            <input type="hidden" name="operation" value="unlike" />
+            <input type="hidden" name="postid" value="{{ '%s'%post.postid }}" />
+            <input type="submit" name="unlike" value="unlike" />
+        </form>
+
+        {% else %}
+        <!--like-->
+        <form action="{{url_for('likes_target', target=url_for('show_post', postid = '%s'%post.postid))}}" method="post"
+            enctype="multipart/form-data">
+            <input type="hidden" name="operation" value="like" />
+            <input type="hidden" name="postid" value="{{ '%s'%post.postid }}" />
+            <input type="submit" name="like" value="like" />
+        </form>
+
+        {% endif %}
+        <!--add comments-->
+        <form action="{{url_for('comments_target', target=url_for('show_post', postid = '%s'%post.postid))}}"
+            method="post" enctype="multipart/form-data">
+            <input type="hidden" name="operation" value="create" />
+            <input type="hidden" name="postid" value="{{ '%s'%post.postid }}" />
+            <input type="text" name="text" required />
+            <input type="submit" name="comment" value="comment" />
+        </form>
+
+
+
+        {% if post.owner == logname %}
+        <!-- delete this post button -->
+        <form action="{{url_for('posts_target', target=url_for('show_user', username = '%s'%logname))}}" method="post"
+            enctype="multipart/form-data">
+            <input type="hidden" name="operation" value="delete" />
+            <input type="hidden" name="postid" value="{{ '%s'%post.postid }}" />
+            <input type="submit" name="delete" value="delete this post" />
+        </form>
+        {% endif %}
+    </div>
+
+</body>
+
+</html>
