@@ -2,6 +2,7 @@
 import hashlib
 import flask
 import insta485
+
 def valid_user():
     """Checks http request valid users."""
     if flask.request.authorization['username'] == "" or flask.request.authorization['password'] == "":

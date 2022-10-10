@@ -3,11 +3,26 @@ import flask
 import insta485
 import helper
 
+@insta485.app.route('/api/v1/')
+def get_api():
+  """REST API for api/v1."""
+  context = {
+    "comments": "/api/v1/comments/",
+    "likes": "/api/v1/likes/",
+    "posts": "/api/v1/posts/",
+    "url": "/api/v1/"
+  }
+  return flask.jsonify(**context), 200
+
+
 @insta485.app.route('/api/v1/posts/')
 def get_post():
+  """REST API for api/v1/posts."""
   if "logname" in flask.session or helper.valid_user():
     connection = insta485.model.get_db()
     cur = connection.execute(
+
+    )
 
 
 @insta485.app.route('/api/v1/posts/<postid>/')
