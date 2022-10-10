@@ -2,28 +2,30 @@
 import flask
 import insta485
 
+
 @insta485.app.route('/api/v1/')
 def get_api():
-  """REST API for api/v1."""
-  context = {
-    "comments": "/api/v1/comments/",
-    "likes": "/api/v1/likes/",
-    "posts": "/api/v1/posts/",
-    "url": "/api/v1/"
-  }
-  return flask.jsonify(**context), 200
+    """REST API for api/v1."""
+    context = {
+        "comments": "/api/v1/comments/",
+        "likes": "/api/v1/likes/",
+        "posts": "/api/v1/posts/",
+        "url": "/api/v1/"
+    }
+    return flask.jsonify(**context), 200
 
 
 @insta485.app.route('/api/v1/posts/')
 def get_post_api():
-  """REST API for api/v1/posts."""
-  if "logname" in flask.session or insta485.api.helper.valid_user():
-    connection = insta485.model.get_db()
-    cur = connection.execute(
+    """REST API for api/v1/posts."""
+    if "logname" in flask.session or insta485.api.helper.valid_user():
+        connection = insta485.model.get_db()
+        cur = connection.execute(
 
-    )
-  else:
-    flask.abort(403)
+        )
+    else:
+        flask.abort(403)
+
 
 @insta485.app.route('/api/v1/posts/?size=N')
 def get_newest_posts():
@@ -45,12 +47,10 @@ def get_post():
   """REST API for api/v1/posts/<postid>/"""
   pass
 
-
 @insta485.app.route('/api/v1/likes/?postid=<postid>')
 def create_like():
   """REST API for api/v1/likes/?postid=<postid>"""
   pass
-
 
 @insta485.app.route('/api/v1/likes/?<likeid>/')
 def delete_like():
@@ -84,8 +84,6 @@ def delete_comment():
 #     result = cur.fetchall()
 #     for comment in result:
 #       if comment.owner == username:
-        
-
 #         context = {
 #         "created": "2017-09-28 04:33:28",
 #         "imgUrl": "/uploads/122a7d27ca1d7420a1072f695d9290fad4501a41.jpg",

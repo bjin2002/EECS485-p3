@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+# insta485install
+#
+# install script for p3
+#
+
+# Stop on errors, print commands
+# See https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
+set -Eeuo pipefail
+set -x
+
+
+# Create a python virtual environment
+python3 -m venv env
+
+# Activate Python virtual environment
+source env/bin/activate
+
+# Install back end
+pip install -r requirements.txt
+pip install -e .
+
+# Install front end
+npm ci .
+
+# Install latest chromedriver using npm
+npm install chromedriver --detect_chromedriver_version --no-save

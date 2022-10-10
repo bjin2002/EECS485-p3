@@ -27,6 +27,7 @@ cookies.txt
 session.json
 bundle.js
 *.js.map
+insta485.egg-info
 
 # EECS 485 Project 4
 tmp
