@@ -96,8 +96,13 @@ def get_post_api():
             str(posts_size) + "&page=" + str(posts_page + 1) + \
             "&postid_lte=" + str(posts_postid_lte)
 
+    # if the last character is a question mark, remove it from url string
+    url = flask.request.full_path
+    if url[-1] == "?":
+        url = url[:-1]
+
     context = {"next": next_url,
-               "results": pruned_posts_limited, "url": flask.request.full_path}
+               "results": pruned_posts_limited, "url": url}
     return flask.jsonify(**context), 200
 
 
@@ -108,35 +113,30 @@ def get_post(postid_url_slug):
     if "logname" not in flask.session and not insta485.api.helper.valid_user():
         flask.abort(403)
 
-    logname = ""
-    if "username" in flask.request.authorization:
-        logname = flask.request.authorization['username']
-    else:
-        logname = flask.session['logname']
+    logname = insta485.api.helper.username_output()
     connection = insta485.model.get_db()
-
-    # Get postid from url
 
     # Post query
     cur_post = connection.execute(
         "SELECT * "
         "FROM posts "
         "WHERE posts.postid = ?",
-        (post_id_url_slug, )
+        (postid_url_slug, )
     )
-    post = cur_post.fetchall()
-
+    all_posts = cur_post.fetchall()
+    post = all_posts[0]
     # Post IDs that are out of range should return a 404 error.
-    if len(post) == 0:
-        flask.abort(404)
+    if len(all_posts) == 0:
+        context = {"message": "Not Found", "status_code": 404}
+        return flask.jsonify(**context), 404
 
-    # Comments query
+    # Comments query for the specific postid
     cur_comments = connection.execute(
         "SELECT * "
         "FROM comments "
         "WHERE comments.postid = ?"
         "ORDER BY comments.commentid ASC",
-        (post_id_url_slug, )
+        (postid_url_slug, )
     )
     comments = cur_comments.fetchall()
 
@@ -144,75 +144,60 @@ def get_post(postid_url_slug):
     for comment in comments:
         comment["lognameOwnsThis"] = (comment["owner"] == logname)
         comment["ownerShowUrl"] = "/users/" + comment["owner"] + "/"
-        comment["url"] = "/api/v1/comments/" + str(comment["postid"]) + "/"
+        comment["url"] = "/api/v1/comments/" + str(comment["commentid"]) + "/"
         del comment["postid"]
         del comment["created"]
 
-    # likes query and dict creation
+    # Query for total number of likes on the specific post id
     likes = {}
     cur_likes = connection.execute(
         "SELECT * "
         "FROM likes "
         "WHERE likes.postid = ?",
-        (post_id_url_slug, )
+        (postid_url_slug, )
     )
     total_likes_for_post = cur_likes.fetchall()
     likes["numLikes"] = len(total_likes_for_post)
 
+    # Query to determine if logname liked the post
     cur_likes = connection.execute(
         "SELECT * "
         "FROM likes "
-        "WHERE likes.owner = ?",
-        (logname, )
+        "WHERE likes.owner = ? "
+        "AND likes.postid = ?",
+        (logname, postid_url_slug)
     )
-    likes_results = cur_likes.fetchall()
-    likes["lognameLikesThis"] = (len(likes_results) > 0)
-    # FIX!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    likes["url"] = "/api/v1/likes/" + str(post_id_url_slug) + "/"
+    logname_likes_results = cur_likes.fetchall()
+    likes["lognameLikesThis"] = (len(logname_likes_results) > 0)
+    if likes["lognameLikesThis"]:
+        likes["url"] = "/api/v1/likes/" + \
+            str(logname_likes_results[0]["likeid"]) + "/"
+    else:
+        likes["url"] = None
 
-    # context = {"comments": comments,
-    #            "comments_url": "/api/v1/comments/?postid=" + str(post_id_url_slug),
-    #            "created": post["created"],
-    #            "imgUrl": post, #FIX!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #            "likes": likes,
-    #            "owner": post["owner"],
-    #            "ownerImgUrl": ,
-    #            "ownerShowUrl":,
-    #            "postShowUrl":,
-    #            "postid":,
-    #            "url":}
-    context = {}
+    # Query to find the owner of the post
+    owner_of_post_query = connection.execute(
+        "SELECT filename "
+        "FROM users "
+        "WHERE users.username = ?",
+        (post["owner"], )
+    )
+    owner_of_post_filename = owner_of_post_query.fetchone()
+
+    # if the last character is a question mark, remove it from url string
+    url = flask.request.full_path
+    if url[-1] == "?":
+        url = url[:-1]
+
+    context = {"comments": comments,
+               "comments_url": "/api/v1/comments/?postid=" + str(postid_url_slug),
+               "created": post["created"],
+               "imgUrl": "/uploads/" + post["filename"],
+               "likes": likes,
+               "owner": post["owner"],
+               "ownerImgUrl": "/uploads/" + owner_of_post_filename["filename"],
+               "ownerShowUrl": "/users/" + post["owner"] + "/",
+               "postShowUrl": "/posts/" + str(postid_url_slug) + "/",
+               "postid": postid_url_slug,
+               "url": url}
     return flask.jsonify(**context), 200
-
-    pass
-
-
-# @insta485.app.route('/api/v1/posts/<int:postid_url_slug>/')
-# def get_post(postid_url_slug):
-#   """REST API for /api/v1/posts/<int:postid_url_slug>/."""
-#   if "logname" in flask.session and insta485.api.helper.valid_user():
-#     username = ""
-#     dict = {}
-#     connection = insta485.model.get_db()
-#     cur = connection.execute(
-#       "SELECT * "
-#       "FROM comments "
-#       "WHERE postid = ?",
-#       (postid_url_slug, )
-#     )
-#     # TODO: general idea, flesh out later
-#     result = cur.fetchall()
-#     for comment in result:
-#       if comment.owner == username:
-#         context = {
-#         "created": "2017-09-28 04:33:28",
-#         "imgUrl": "/uploads/122a7d27ca1d7420a1072f695d9290fad4501a41.jpg",
-#         "owner": "awdeorio",
-#         "ownerImgUrl": "/uploads/e1a7c5c32973862ee15173b0259e3efdb6a391af.jpg",
-#         "ownerShowUrl": "/users/awdeorio/",
-#         "postid": "/posts/{}/".format(postid_url_slug),
-#         "url": flask.request.path,
-#     }
-#     return flask.jsonify(**context)
-#   else:
-#     flask.abort(403)
