@@ -24,11 +24,7 @@ def get_post_api():
     if "logname" not in flask.session and not insta485.api.helper.valid_user():
         flask.abort(403)
 
-    logname = ""
-    if "username" in flask.request.authorization:
-        logname = flask.request.authorization['username']
-    else:
-        logname = flask.session['logname']
+    logname = insta485.api.helper.username_output()
 
     DEFAULT_POSTS_SIZE = 10
     DEFAULT_PAGE_NUM = 0
