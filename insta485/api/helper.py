@@ -38,7 +38,7 @@ def valid_user():
 def username_output():
     """Returns the correct logname."""
     logname = ""
-    if "username" in flask.request.authorization:
+    if flask.request.authorization:
         logname = flask.request.authorization['username']
     else:
         logname = flask.session['logname']
