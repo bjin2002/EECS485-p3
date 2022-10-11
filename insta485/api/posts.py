@@ -6,8 +6,8 @@ import insta485
 @insta485.app.route('/api/v1/')
 def get_api():
     """REST API for api/v1."""
-    # Every REST API route should return 403 if a user is not authenticated.
-    # The only exception is /api/v1/, which is publicly available.
+    # /api/v1/ DOES NOT return a 403 if the user is not authenticated because
+    # it is publicly available
     context = {
         "comments": "/api/v1/comments/",
         "likes": "/api/v1/likes/",
