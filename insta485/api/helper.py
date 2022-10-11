@@ -3,10 +3,12 @@ import hashlib
 import flask
 import insta485
 
+
 def valid_user():
     """Checks http request valid users."""
-    if flask.request.authorization['username'] == "" or flask.request.authorization['password'] == "":
+    if "username" not in flask.request.authorization or "password" not in flask.request.authorization:
         return False
+
     # There is a username and password
     else:
         username = flask.request.authorization['username']
@@ -15,7 +17,7 @@ def valid_user():
             "SELECT password "
             "FROM users "
             "WHERE username = ?",
-            (username )
+            (username, )
         )
         result = cur.fetchone()
         if len(result) == 0:

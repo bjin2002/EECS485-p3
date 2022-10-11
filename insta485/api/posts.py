@@ -17,42 +17,43 @@ def get_api():
     return flask.jsonify(**context), 200
 
 
-# @insta485.app.route('/api/v1/posts/?size=N&page=N&postid_lte=N', methods=['GET'])
 @insta485.app.route('/api/v1/posts/', methods=['GET'])
 def get_post_api():
-    """REST API for api/v1/?size=N&page=N&postid_lte=N."""
+    """REST API for api/v1/posts/."""
     # Every REST API route should return 403 if a user is not authenticated.
     if "logname" not in flask.session and not insta485.api.helper.valid_user():
         flask.abort(403)
 
-    logname = flask.session['logname']
-    DEFAULT_POSTS_SIZE = 10
+    logname = ""
+    if "username" in flask.request.authorization:
+        logname = flask.request.authorization['username']
+    else:
+        logname = flask.session['logname']
 
+    DEFAULT_POSTS_SIZE = 10
+    DEFAULT_PAGE_NUM = 0
     posts_size = flask.request.args.get(
         "size", default=DEFAULT_POSTS_SIZE, type=int)
-    posts_page = flask.request.args.get('page', type=int)
+    posts_page = flask.request.args.get(
+        "page", default=DEFAULT_PAGE_NUM, type=int)
     posts_postid_lte = flask.request.args.get(
-        'postid_lte', default=float("inf"), type=int)
+        "postid_lte", default=float("inf"), type=int)
+
+    # if posts_size or posts_page is negative return 400 Bad Request
+    if posts_size < 0 or posts_page < 0:
+        context = {"message": "Bad Request", "status_code": 400}
+        return flask.jsonify(**context), 400
 
     connection = insta485.model.get_db()
 
-    # CODE FROM P2 TO GET PRUNED POSTS ######################
-    # users query
-    logname = flask.session['logname']
-    cur = connection.execute(
-        "SELECT username, fullname "
-        "FROM users "
-        "WHERE username != ?",
-        (logname, )
-    )
-    users = cur.fetchall()
-
-    print(users)
+    # CODE FROM P2 TO GET PRUNED POSTS #########################################
     # posts query
     cur = connection.execute(
         "SELECT * "
         "FROM posts "
-        "ORDER BY posts.postid DESC"
+        "WHERE posts.postid <= ? "
+        "ORDER BY posts.postid DESC",
+        (posts_postid_lte, )
     )
     posts = cur.fetchall()
 
@@ -68,100 +69,57 @@ def get_post_api():
     # Create set of all the users that the logged in user is following
     for row in following:
         logged_user_following_list.add(row["username2"])
-
     pruned_posts = []
     # We now have a list of all the posts that are by the logged in user OR
     # by a user that the logged in user is following
     for row in posts:
-        if (row["owner"] in logged_user_following_list
-           or row["owner"] == flask.session['logname']):
+        if row["owner"] in logged_user_following_list or row["owner"] == logname:
             newDict = {}
             newDict["postid"] = row["postid"]
             pruned_posts.append(newDict)
+    posts_postid_lte = pruned_posts[0]["postid"]
 
     # Now we must prune the posts to only include the posts that are less than
     # or equal to the postid_lte
     pruned_posts_limited = []
-    i = 0
-    # WRONG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    # /api/v1/posts/?size=10&page=1&postid_lte=11.
-    # A GET request to the next url will return 1 post in this case.
-    start_index = posts_size * (posts_page - 1)
-    for row in pruned_posts:
-        row["url"] = "/api/v1/posts/" + str(row["postid"]) + "/"
+    start_index = posts_size * (posts_page)
+    end_index = min(start_index + posts_size, len(pruned_posts))
 
-        if (start_index <= i and i < start_index + posts_size):
-            pruned_posts_limited.append(row)
-
-            # if postid is greater than postid_lte, break
-            if (row["postid"] >= posts_postid_lte):
-                break
-
-        i += 1
+    if start_index == len(pruned_posts):
+        pruned_posts_limited = []
+    else:
+        for i in range(start_index, end_index):
+            pruned_posts[i]["url"] = "/api/v1/posts/" + \
+                str(pruned_posts[i]["postid"]) + "/"
+            pruned_posts_limited.append(pruned_posts[i])
 
     # If the length of the result is greater than or equal to posts_size, then we have to set 'next'
     next_url = ""
-    if len(pruned_posts) == posts_size:
-        next_url = f"/api/v1/posts/?size={posts_size}&page={posts_page + 1}&postid_lte={posts_postid_lte}"
-    elif len(pruned_posts) > posts_size:
-        next_url = f"/api/v1/posts/?size={posts_size}&page={posts_page + 1}&postid_lte={posts_postid_lte}"
+    if len(pruned_posts_limited) >= posts_size:
+        next_url = "/api/v1/posts/?size=" + \
+            str(posts_size) + "&page=" + str(posts_page + 1) + \
+            "&postid_lte=" + str(posts_postid_lte)
 
     context = {"next": next_url,
-               "results": pruned_posts_limited, "url": flask.request.url}
+               "results": pruned_posts_limited, "url": flask.request.full_path}
     return flask.jsonify(**context), 200
 
 
-# @insta485.app.route('/api/v1/posts/?size=N')
-# def get_newest_posts():
-#     """REST API for api/v1/posts/?size=N'."""
-#     # Every REST API route should return 403 if a user is not authenticated.
-#     if "logname" not in flask.session and not insta485.api.helper.valid_user():
-#         flask.abort(403)
-
-#     connection = insta485.model.get_db()
-
-#     pass
-
-
-# @insta485.app.route('/api/v1/posts/?page=N')
-# def get_nth_page():
-#     """REST API for api/v1/posts/?page=N."""
-#     # Every REST API route should return 403 if a user is not authenticated.
-#     if "logname" not in flask.session and not insta485.api.helper.valid_user():
-#         flask.abort(403)
-
-#     connection = insta485.model.get_db()
-
-#     pass
-
-
-# @insta485.app.route('/api/v1/posts/?postid_lte=N')
-# def get_post_ids():
-#     """REST API for api/v1/posts/?postid_lte=N."""
-#     # Every REST API route should return 403 if a user is not authenticated.
-#     if "logname" not in flask.session and not insta485.api.helper.valid_user():
-#         flask.abort(403)
-
-#     connection = insta485.model.get_db()
-
-#     pass
-
-
 @insta485.app.route('/api/v1/posts/<int:postid_url_slug>/')
-def get_post():
+def get_post(postid_url_slug):
     """REST API for api/v1/posts/<postid>/."""
     # Every REST API route should return 403 if a user is not authenticated.
     if "logname" not in flask.session and not insta485.api.helper.valid_user():
         flask.abort(403)
 
-    logname = flask.session['logname']
+    logname = ""
+    if "username" in flask.request.authorization:
+        logname = flask.request.authorization['username']
+    else:
+        logname = flask.session['logname']
     connection = insta485.model.get_db()
 
-    flask.request.args.get(
-        'postid_lte', default=float("inf"), type=int)
-
     # Get postid from url
-    post_id_url_slug = flask.request.args.get('postid_url_slug', type=int)
 
     # Post query
     cur_post = connection.execute(
