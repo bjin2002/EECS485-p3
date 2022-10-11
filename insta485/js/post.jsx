@@ -25,6 +25,14 @@ class Post extends React.Component {
         };
     }
 
+    handleLikes() {
+
+    }
+
+    handleComments() {
+
+    }
+    
     // Runs when an instance is added to the DOM
     componentDidMount() {
         // This line automatically assigns this.props.url to the const variable url
@@ -69,7 +77,7 @@ class Post extends React.Component {
                 <p>{owner}</p>
 
                 {/* Make a call to the like component */}
-                <Like likes={likes} />
+                <Like lognameLikesThis={likes.lognameLikesThis} numLikes={likes.numLikes} url={likes.url}/>
 
                 {/* for each comment in comments, render a comment component, passing in comment.url, comment.text, and comment.lognameOwnsThis */}
                 {comments.map((comment) => (

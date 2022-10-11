@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Post from "./post";
 
-class postParent extends React.Component {
+class feed extends React.Component {
     /* Display image and post owner of a single post
      */
 
@@ -10,14 +10,14 @@ class postParent extends React.Component {
     constructor(props) {
         // Initialize mutable state
         super(props);
-        this.state = {next: "", results: [], url: ""};
+        this.state = { next: "", results: [], url: "/api/v1/posts/" };
     }
 
     // Runs when an instance is added to the DOM
     componentDidMount() {
         // This line automatically assigns this.props.url to the const variable url
         const { url } = this.props;
-
+        
         // Call REST API to get the post's information
         fetch(url, { credentials: "same-origin" })
             .then((response) => {
@@ -46,9 +46,12 @@ class postParent extends React.Component {
         return (
             // For each post in results, render a post component
             <div className="pagination" >
-                {results.map((post) => (
+                {/* {results.map((post) => (
                     <Post url={post.url} />
-                ))}
+                ))} */}
+                {next}
+                {results}
+                {url}
             </div>
 
             // Do something with infinite scroll and next (?).... TODO
@@ -57,8 +60,8 @@ class postParent extends React.Component {
     }
 }
 
-postParent.propTypes = {
+feed.propTypes = {
     url: PropTypes.string.isRequired,
 };
 
-export default postParent;
+export default feed;
