@@ -2,9 +2,6 @@
 
 from insta485.api.posts import get_api
 from insta485.api.posts import get_post_api
-from insta485.api.posts import get_newest_posts
-from insta485.api.posts import get_nth_page
-from insta485.api.posts import get_post_ids
 from insta485.api.posts import get_post
 from insta485.api.likes import create_like
 from insta485.api.likes import delete_like
