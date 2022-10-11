@@ -36,7 +36,7 @@ def get_post_api():
 
     connection = insta485.model.get_db()
 
-    # CODE FROM P2
+    # CODE FROM P2 TO GET PRUNED POSTS ######################
     # users query
     logname = flask.session['logname']
     cur = connection.execute(
@@ -47,6 +47,7 @@ def get_post_api():
     )
     users = cur.fetchall()
 
+    print(users)
     # posts query
     cur = connection.execute(
         "SELECT * "
@@ -69,6 +70,8 @@ def get_post_api():
         logged_user_following_list.add(row["username2"])
 
     pruned_posts = []
+    # We now have a list of all the posts that are by the logged in user OR
+    # by a user that the logged in user is following
     for row in posts:
         if (row["owner"] in logged_user_following_list
            or row["owner"] == flask.session['logname']):
@@ -76,8 +79,13 @@ def get_post_api():
             newDict["postid"] = row["postid"]
             pruned_posts.append(newDict)
 
+    # Now we must prune the posts to only include the posts that are less than
+    # or equal to the postid_lte
     pruned_posts_limited = []
     i = 0
+    # WRONG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # /api/v1/posts/?size=10&page=1&postid_lte=11.
+    # A GET request to the next url will return 1 post in this case.
     start_index = posts_size * (posts_page - 1)
     for row in pruned_posts:
         row["url"] = "/api/v1/posts/" + str(row["postid"]) + "/"
@@ -90,16 +98,6 @@ def get_post_api():
                 break
 
         i += 1
-
-    # # posts query for posts by logged in user or users they follow
-    # cur_posts = connection.execute(
-    #     "SELECT postid "
-    #     "FROM posts "
-    #     "ORDER BY posts.postid DESC "
-    #     "OFFEST ?",
-    #     (posts_size * (posts_page - 1),)
-    # )
-    # cur_posts_result = cur_posts.fetchall()
 
     # If the length of the result is greater than or equal to posts_size, then we have to set 'next'
     next_url = ""
@@ -153,10 +151,84 @@ def get_post_api():
 def get_post():
     """REST API for api/v1/posts/<postid>/"""
     # Every REST API route should return 403 if a user is not authenticated.
-    if "logname" not in flask.session or not insta485.api.helper.valid_user():
+    if "logname" not in flask.session and not insta485.api.helper.valid_user():
         flask.abort(403)
 
+    logname = flask.session['logname']
     connection = insta485.model.get_db()
+
+    flask.request.args.get(
+        'postid_lte', default=float("inf"), type=int)
+
+    # Get postid from url
+    post_id_url_slug = flask.request.args.get('postid_url_slug', type=int)
+
+    # Post query
+    cur_post = connection.execute(
+        "SELECT * "
+        "FROM posts "
+        "WHERE posts.postid = ?",
+        (post_id_url_slug, )
+    )
+    post = cur_post.fetchall()
+
+    # Post IDs that are out of range should return a 404 error.
+    if len(post) == 0:
+        flask.abort(404)
+
+    # Comments query
+    cur_comments = connection.execute(
+        "SELECT * "
+        "FROM comments "
+        "WHERE comments.postid = ?"
+        "ORDER BY comments.commentid ASC",
+        (post_id_url_slug, )
+    )
+    comments = cur_comments.fetchall()
+
+    # delete/add certain fields to prepare dictionary for json format
+    for comment in comments:
+        comment["lognameOwnsThis"] = (comment["owner"] == logname)
+        comment["ownerShowUrl"] = "/users/" + comment["owner"] + "/"
+        comment["url"] = "/api/v1/comments/" + str(comment["postid"]) + "/"
+        del comment["postid"]
+        del comment["created"]
+
+    # likes query and dict creation
+    likes = {}
+    cur_likes = connection.execute(
+        "SELECT * "
+        "FROM likes "
+        "WHERE likes.postid = ?",
+        (post_id_url_slug, )
+    )
+    total_likes_for_post = cur_likes.fetchall()
+    likes["numLikes"] = len(total_likes_for_post)
+
+    cur_likes = connection.execute(
+        "SELECT * "
+        "FROM likes "
+        "WHERE likes.owner = ?",
+        (logname, )
+    )
+    likes_results = cur_likes.fetchall()
+    likes["lognameLikesThis"] = (len(likes_results) > 0)
+    # FIX!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    likes["url"] = "/api/v1/likes/" + str(post_id_url_slug) + "/"
+
+    # context = {"comments": comments,
+    #            "comments_url": "/api/v1/comments/?postid=" + str(post_id_url_slug),
+    #            "created": post["created"],
+    #            "imgUrl": post, #FIX!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    #            "likes": likes,
+    #            "owner": post["owner"],
+    #            "ownerImgUrl": ,
+    #            "ownerShowUrl":,
+    #            "postShowUrl":,
+    #            "postid":,
+    #            "url":}
+    context = {}
+    return flask.jsonify(**context), 200
 
     pass
 
