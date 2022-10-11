@@ -124,11 +124,11 @@ def get_post(postid_url_slug):
         (postid_url_slug, )
     )
     all_posts = cur_post.fetchall()
-    post = all_posts[0]
     # Post IDs that are out of range should return a 404 error.
     if len(all_posts) == 0:
         context = {"message": "Not Found", "status_code": 404}
         return flask.jsonify(**context), 404
+    post = all_posts[0]
 
     # Comments query for the specific postid
     cur_comments = connection.execute(
