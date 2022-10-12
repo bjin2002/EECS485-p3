@@ -68,24 +68,26 @@ class Post extends React.Component {
 
     handleLikeButton() {
         // event prevent default
-        event.preventDefault();
-
-        const { postid, lognameLikesThis, numLikes, likesUrl } = this.state;
+        
+        console.log('like button clicked');
+        const { postid, lognameLikesThis, numLikes, likesUrl, } = this.state;
 
         // if lognameLikesThis is true, set lognameLikesThis to false and subtract 1 from numLikes
         // else set lognameLikesThis to true and add 1 to numLikes
         if (lognameLikesThis) {
             console.log("unlike");
+            console.log(likesUrl);
 
-            fetch(likesUrl, { credentials: "same-origin" })
+            fetch(likesUrl, { method: "DELETE", credentials: "same-origin", })
                 .then((response) => {
                     // if response is not ok, throw an error
                     if (!response.ok) {
                         throw Error(response.statusText);
                     }
-                    return response;
+                    return response.text();
                 })
                 .then(() => {
+                    console.log('settingState');
                     // Update data for state after the like is removed
                     this.setState({
                         lognameLikesThis: false,
@@ -94,28 +96,32 @@ class Post extends React.Component {
                         buttonText: "Like"
                     });
                 })
-                
+                .catch((error) => console.log(error));
+
         }
         else {
             console.log("like");
+            console.log(likesUrl);
 
-            fetch(likesUrl, { credentials: "same-origin" })
+            fetch(`/api/v1/likes/?postid=${postid}`, { method: "POST", credentials: "same-origin" })
                 .then((response) => {
                     // if response is not ok, throw an error
                     if (!response.ok) {
                         throw Error(response.statusText);
                     }
-                    return response;
+                    return response.json();
                 })
-                .then(() => {
+                .then((data) => {
+                    console.log('settingState');
                     // Update data for state after the like is added 
                     this.setState({
                         lognameLikesThis: true,
                         numLikes: numLikes + 1,
-                        likesUrl: `/api/v1/likes/?postid=${postid}`,
-                        buttonText: "Unlike"
+                        buttonText: "Unlike",
+                        likesUrl: data.url,
                     });
                 })
+                .catch((error) => console.log(error));
 
         }
 
@@ -126,6 +132,8 @@ class Post extends React.Component {
 
     // Returns HTML representing this component
     render() {
+        console.log("rendering post")
+
         // This line automatically assigns this.state.imgUrl to the const variable imgUrl
         // and this.state.owner to the const variable owner
         // set the state of all the variables from setState
@@ -135,8 +143,9 @@ class Post extends React.Component {
         // Render post image and post owner
         return (
 
-            // /* for each comment in comments, render a comment component, passing in
-            //          comment.url, comment.text, and comment.lognameOwnsThis */
+
+            // /* for each comment in comments, create an html div with the comment owner and text */
+            
 
 
             <div className="post">
@@ -170,9 +179,9 @@ class Post extends React.Component {
                     )}
                 </div>
 
-                {/* <div className="postComments">
+                <div className="postComments">
                     {}
-                </div> */}
+                </div>
 
             </div>
         );
