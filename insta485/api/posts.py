@@ -22,7 +22,8 @@ def get_post_api():
     """REST API for api/v1/posts/."""
     # Every REST API route should return 403 if a user is not authenticated.
     if "logname" not in flask.session and not insta485.api.helper.valid_user():
-        flask.abort(403)
+        context = {"message": "Forbidden", "status_code": 403}
+        return flask.jsonify(**context), 403
 
     logname = insta485.api.helper.username_output()
 
@@ -111,7 +112,8 @@ def get_post(postid_url_slug):
     """REST API for api/v1/posts/<postid>/."""
     # Every REST API route should return 403 if a user is not authenticated.
     if "logname" not in flask.session and not insta485.api.helper.valid_user():
-        flask.abort(403)
+        context = {"message": "Forbidden", "status_code": 403}
+        return flask.jsonify(**context), 403
 
     logname = insta485.api.helper.username_output()
     connection = insta485.model.get_db()

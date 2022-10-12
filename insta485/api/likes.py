@@ -8,7 +8,8 @@ def create_like():
     """REST API for api/v1/likes/?postid=<postid>."""
     # Every REST API route should return 403 if a user is not authenticated.
     if "logname" not in flask.session and not insta485.api.helper.valid_user():
-        flask.abort(403)
+        context = {"message": "Forbidden", "status_code": 403}
+        return flask.jsonify(**context), 403
 
     connection = insta485.model.get_db()
     logname = insta485.api.helper.username_output()
@@ -58,7 +59,8 @@ def delete_like(likeid):
     """REST API for api/v1/likes/<likeid>/."""
     # Every REST API route should return 403 if a user is not authenticated.
     if "logname" not in flask.session and not insta485.api.helper.valid_user():
-        flask.abort(403)
+        context = {"message": "Forbidden", "status_code": 403}
+        return flask.jsonify(**context), 403
 
     connection = insta485.model.get_db()
     logname = insta485.api.helper.username_output()

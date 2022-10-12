@@ -8,7 +8,8 @@ def create_comment():
     """REST API for api/v1/comments/?postid=<postid>."""
     # Every REST API route should return 403 if a user is not authenticated.
     if "logname" not in flask.session and not insta485.api.helper.valid_user():
-        flask.abort(403)
+        context = {"message": "Forbidden", "status_code": 403}
+        return flask.jsonify(**context), 403
 
     connection = insta485.model.get_db()
     logname = insta485.api.helper.username_output()
@@ -48,7 +49,8 @@ def delete_comment(commentid):
     """REST API for api/v1/comments/<commentid>/."""
     # Every REST API route should return 403 if a user is not authenticated.
     if "logname" not in flask.session and not insta485.api.helper.valid_user():
-        flask.abort(403)
+        context = {"message": "Forbidden", "status_code": 403}
+        return flask.jsonify(**context), 403
 
     connection = insta485.model.get_db()
     logname = insta485.api.helper.username_output()
