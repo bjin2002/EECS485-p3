@@ -1,8 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import moment from "moment";
-import Like from "./like";
-import Comment from "./comment"
 
 class Post extends React.Component {
     /* Display image and post owner of a single post
@@ -24,20 +22,13 @@ class Post extends React.Component {
             postid: 0,
             lognameLikesThis: false,
             likesUrl: "",
-            likeAction: "",
             numLikes: 0,
-            
+            buttonText: "",
+
         };
         this.handleLikeButton = this.handleLikeButton.bind(this);
     }
 
-    handleLikeButton() {
-        const { comments, comments_url, created, imgUrl, likes, owner, ownerImgUrl,
-            ownerShowUrl, postShowUrl, postid, lognameLikesThis, numLikes, likesUrl } = this.state;
-        if (lognameLikesThis) {
-
-        }
-    }
 
     // handleComments() {
 
@@ -67,12 +58,70 @@ class Post extends React.Component {
                     postShowUrl: data.postShowUrl,
                     postid: data.postid,
                     lognameLikesThis: data.likes.lognameLikesThis,
-                    likeAction = data.likes.lognameLikesThis ? 'Unlike' : 'Like'
+                    buttonText: data.likes.lognameLikesThis ? 'Unlike' : 'Like',
                     numLikes: data.likes.numLikes,
                     likesUrl: data.likes.url,
                 });
             })
             .catch((error) => console.log(error));
+    }
+
+    handleLikeButton() {
+        // event prevent default
+        event.preventDefault();
+
+        const { postid, lognameLikesThis, numLikes, likesUrl } = this.state;
+
+        // if lognameLikesThis is true, set lognameLikesThis to false and subtract 1 from numLikes
+        // else set lognameLikesThis to true and add 1 to numLikes
+        if (lognameLikesThis) {
+            console.log("unlike");
+
+            fetch(likesUrl, { credentials: "same-origin" })
+                .then((response) => {
+                    // if response is not ok, throw an error
+                    if (!response.ok) {
+                        throw Error(response.statusText);
+                    }
+                    return response;
+                })
+                .then(() => {
+                    // Update data for state after the like is removed
+                    this.setState({
+                        lognameLikesThis: false,
+                        numLikes: numLikes - 1,
+                        likesUrl: "",
+                        buttonText: "Like"
+                    });
+                })
+                
+        }
+        else {
+            console.log("like");
+
+            fetch(likesUrl, { credentials: "same-origin" })
+                .then((response) => {
+                    // if response is not ok, throw an error
+                    if (!response.ok) {
+                        throw Error(response.statusText);
+                    }
+                    return response;
+                })
+                .then(() => {
+                    // Update data for state after the like is added 
+                    this.setState({
+                        lognameLikesThis: true,
+                        numLikes: numLikes + 1,
+                        likesUrl: `/api/v1/likes/?postid=${postid}`,
+                        buttonText: "Unlike"
+                    });
+                })
+
+        }
+
+        // fetch the likesUrl and set credentials to same-origin
+
+
     }
 
     // Returns HTML representing this component
@@ -81,23 +130,24 @@ class Post extends React.Component {
         // and this.state.owner to the const variable owner
         // set the state of all the variables from setState
         const { comments, comments_url, created, imgUrl, likes, owner, ownerImgUrl,
-            ownerShowUrl, postShowUrl, postid, lognameLikesThis, numLikes, likesUrl} = this.state;
+            ownerShowUrl, postShowUrl, postid, lognameLikesThis, buttonText, numLikes, likesUrl } = this.state;
 
         // Render post image and post owner
         return (
+
+            // /* for each comment in comments, render a comment component, passing in
+            //          comment.url, comment.text, and comment.lognameOwnsThis */
+
+
             <div className="post">
-                    {/* for each comment in comments, render a comment component, passing in
-                     comment.url, comment.text, and comment.lognameOwnsThis */}
-                    {comments.map((comment) => (
-                        <Comment />
-                    ))}
+
                 <div className="profilePic">
                     <a href={ownerShowUrl}>
-                        <img src={ownerImgUrl} alt="profilePic"/>
-                            <p>{owner}</p>
+                        <img src={ownerImgUrl} alt="profilePic" />
+                        <p>{owner}</p>
                     </a>
                 </div>
-                
+
                 <div className="postTime">
                     <a href={postShowUrl}>
                         <p>{created}</p>
@@ -112,23 +162,17 @@ class Post extends React.Component {
                     <button onClick={this.handleLikeButton} className="like-unlike-button" type="submit">
                         {buttonText}
                     </button>
-                    if (numLikes === 1) {
-                        <div className="oneLike">
-                        {numLikes}
-                        {' like'}
-                        </div>
-                    }
-                    else {
-                        <div className="manyLikes">
-                            {numLikes}
-                            {' likes'}
-                        </div>
-                    }
+                    {/* if numLikes is equal to 1 print the number of likes with like, else print likes */}
+                    {numLikes === 1 ? (
+                        <p>{numLikes} like</p>
+                    ) : (
+                        <p>{numLikes} likes</p>
+                    )}
                 </div>
 
-                <div className="postComments">
-                    
-                </div>
+                {/* <div className="postComments">
+                    {}
+                </div> */}
 
             </div>
         );
