@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import moment from "moment";
 import Like from "./like";
 import Comment from "./comment"
 
@@ -16,23 +17,28 @@ class Post extends React.Component {
             comments_url: "",
             created: "",
             imgUrl: "",
-            likes: [],
             owner: "",
             ownerImgUrl: "",
             ownerShowUrl: "",
             postShowUrl: "",
-            postid: 0
+            postid: 0,
+            lognameLikesThis: false,
+            numLikes: 0,
+            likesUrl: "",
         };
+        this.likeHandlerSetStateofParent = this.likeHandlerSetStateofParent.bind(this);
     }
 
-    handleLikes() {
+    handleLikeButton() {
+        const { comments, comments_url, created, imgUrl, likes, owner, ownerImgUrl,
+            ownerShowUrl, postShowUrl, postid, lognameLikesThis, numLikes, likesUrl } = this.state;
 
     }
 
-    handleComments() {
+    // handleComments() {
 
-    }
-    
+    // }
+
     // Runs when an instance is added to the DOM
     componentDidMount() {
         // This line automatically assigns this.props.url to the const variable url
@@ -49,14 +55,16 @@ class Post extends React.Component {
                 this.setState({
                     comments: data.comments,
                     comments_url: data.comments_url,
-                    created: data.created,
+                    created: moment(data.created).fromNow(),
                     imgUrl: data.imgUrl,
-                    likes: data.likes,
                     owner: data.owner,
                     ownerImgUrl: data.ownerImgUrl,
                     ownerShowUrl: data.ownerShowUrl,
                     postShowUrl: data.postShowUrl,
-                    postid: data.postid
+                    postid: data.postid,
+                    lognameLikesThis: data.likes.lognameLikesThis,
+                    numLikes: data.likes.numLikes,
+                    likesUrl: data.likes.url,
                 });
             })
             .catch((error) => console.log(error));
@@ -68,22 +76,42 @@ class Post extends React.Component {
         // and this.state.owner to the const variable owner
         // set the state of all the variables from setState
         const { comments, comments_url, created, imgUrl, likes, owner, ownerImgUrl,
-            ownerShowUrl, postShowUrl, postid } = this.state;
+            ownerShowUrl, postShowUrl, postid, lognameLikesThis, numLikes, likesUrl} = this.state;
 
         // Render post image and post owner
         return (
             <div className="post">
-                <img src={imgUrl} alt="post_image" />
-                <p>{owner}</p>
+                    {/* for each comment in comments, render a comment component, passing in
+                     comment.url, comment.text, and comment.lognameOwnsThis */}
+                    {comments.map((comment) => (
+                        <Comment />
+                    ))}
+                <div className="profilePic">
+                    <a href={ownerShowUrl}>
+                        <img src={ownerImgUrl} alt="profilePic"/>
+                            <p>{owner}</p>
+                    </a>
+                </div>
+                
+                <div className="postTime">
+                    <a href={postShowUrl}>
+                        <p>{created}</p>
+                    </a>
+                </div>
 
-                {/* Make a call to the like component */}
-                <Like lognameLikesThis={likes.lognameLikesThis} numLikes={likes.numLikes} url={likes.url}/>
+                <div className="postImage">
+                    <img src={imgUrl} alt="postImage" />
+                </div>
 
-                {/* for each comment in comments, render a comment component, passing in comment.url, comment.text, and comment.lognameOwnsThis */}
-                {comments.map((comment) => (
-                    <Comment url={comment.url} text={comment.text} lognameOwnsThis={comment.lognameOwnsThis} />
-                ))}
+                <div className="postLikes">
+                    <button onClick={this.handleClick} className="like-unlike-button" type="submit">
+                        {buttonText}
+                    </button>
+                </div>
 
+                <div className="postComments">
+                    
+                </div>
 
             </div>
         );

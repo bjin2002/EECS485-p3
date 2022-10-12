@@ -8,7 +8,8 @@ import PropTypes from "prop-types";
 class Like extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { };
+        this.state = { buttonText: "" };
+        this.handleClick.bind(this);
     }
 
     componentDidMount() {
@@ -21,10 +22,29 @@ class Like extends React.Component {
             .catch((error) => console.log(error));
     }
 
+    handleClick() {
+        // if lognamLikesThis is true, then set buttonText to unlike
+        const { lognameLikesThis, numLikes, url } = this.props;
+        if (lognameLikesThis) {
+            this.setState({ buttonText: "Unlike" });
+            this.props.likeHandlerSetStateofParent(!this.props.lognameLikesThis,
+                numLikes - 1,
+                this.props.url);
+        }
+        // if lognameLikesThis is false, then like
+        else {
+            this.setState({ buttonText: "Like" });
+            this.props.likeHandlerSetStateofParent(this.props.lognameLikesThis, this.props.numLikes, this.props.url);
+        }
+
+
+    }
+
     render() {
         return (
-            <button className="like-unlike-button" type="submit">
-                FIXME-button-text-here
+
+            <button onClick={this.handleClick} className="like-unlike-button" type="submit">
+                {buttonText}
             </button>
         );
     }
