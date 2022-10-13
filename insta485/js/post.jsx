@@ -232,9 +232,10 @@ class Post extends React.Component {
                 </div>
 
                 <div className="createComment">
+                    
                     <form className="comment-form">
                         {/* create an input field that is submitted with the enter key and handled by handleCreateComment */}
-                        <input id="commentInput" type="text" value="fdsafdsa" onKeyDown={ event => this.handleCommentKeyPress(event)} />
+                        <input id="commentInput" type="text" value="" onKeyDown={ event => this.handleCommentKeyPress(event)} />
                     </form>
                 </div>
 

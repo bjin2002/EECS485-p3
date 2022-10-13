@@ -45,26 +45,36 @@ class feed extends React.Component {
 
         // Render post image and post owner
         return (
-            <InfiniteScroll>
-                // data length
-                //next
-                //has more posts (if next is blank)
-                //loader
-                //end message
+            // <InfiniteScroll>
+            //     // data length
+            //     //next
+            //     //has more posts (if next is blank)
+            //     //loader
+            //     //end message
 
-            </InfiniteScroll>
+            // </InfiniteScroll>
 
-            // For each post in results, render a post component
+            // // For each post in results, render a post component
+            // <div className="pagination" >
+            //     {/* {results.map((post) => (
+            //         <Post url={post.url} />
+            //     ))} */}
+            //     {next}
+            //     {results}
+            //     {url}
+            // </div>
+
+            // 1. put explore/header/logo... in a div at the top
+
+            // 2. For each post in results, render a post component
+            // This is where infinite scroll componenet will go
             <div className="pagination" >
-                {/* {results.map((post) => (
+                {results.map((post) => (
                     <Post url={post.url} />
-                ))} */}
-                {next}
-                {results}
-                {url}
+                ))}
             </div>
 
-            // Do something with infinite scroll and next (?).... TODO
+            // 3. If bottom of the page is reached, then load more posts
 
         );
     }
