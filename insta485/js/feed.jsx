@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Post from "./post";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 class feed extends React.Component {
     /* Display image and post owner of a single post
@@ -40,10 +41,19 @@ class feed extends React.Component {
         // This line automatically assigns this.state.imgUrl to the const variable imgUrl
         // and this.state.owner to the const variable owner
         // set the state of all the variables from setState
-        const { next ,results, url} = this.state;
+        const { next, results, url} = this.state;
 
         // Render post image and post owner
         return (
+            <InfiniteScroll>
+                // data length
+                //next
+                //has more posts (if next is blank)
+                //loader
+                //end message
+
+            </InfiniteScroll>
+
             // For each post in results, render a post component
             <div className="pagination" >
                 {/* {results.map((post) => (

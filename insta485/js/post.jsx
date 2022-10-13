@@ -27,6 +27,7 @@ class Post extends React.Component {
 
         };
         this.handleLikeButton = this.handleLikeButton.bind(this);
+        this.handleCommentKeyPress = this.handleCommentKeyPress.bind(this);
     }
 
 
@@ -66,9 +67,12 @@ class Post extends React.Component {
             .catch((error) => console.log(error));
     }
 
+    // Handles the like button when clicked
     handleLikeButton() {
         // event prevent default
-        
+        event.preventDefault();
+
+
         console.log('like button clicked');
         const { postid, lognameLikesThis, numLikes, likesUrl, } = this.state;
 
@@ -86,15 +90,15 @@ class Post extends React.Component {
                     }
                     return response.text();
                 })
-                .then(() => {
+                .then((data) => {
                     console.log('settingState');
                     // Update data for state after the like is removed
-                    this.setState({
+                    this.setState((prevState) => ({
                         lognameLikesThis: false,
-                        numLikes: numLikes - 1,
+                        numLikes: prevState.numLikes - 1,
                         likesUrl: "",
-                        buttonText: "Like"
-                    });
+                        buttonText: "Like",
+                    }));
                 })
                 .catch((error) => console.log(error));
 
@@ -114,40 +118,74 @@ class Post extends React.Component {
                 .then((data) => {
                     console.log('settingState');
                     // Update data for state after the like is added 
-                    this.setState({
+                    this.setState((prevState) => ({
                         lognameLikesThis: true,
-                        numLikes: numLikes + 1,
+                        numLikes: prevState.numLikes + 1,
                         buttonText: "Unlike",
                         likesUrl: data.url,
-                    });
+                    }));
                 })
                 .catch((error) => console.log(error));
-
         }
+    }
 
-        // fetch the likesUrl and set credentials to same-origin
+
+    handleCommentKeyPress(event) {
+        // event prevent default
+        event.preventDefault();
+        console.log("Key pressed: " + event.key);
+
+        if (event.key === 'Enter') {
+            console.log('enter key pressed');
+            this.handleCreateComment(event);
+        }
+    };
 
 
+    handleCreateComment(event) {
+        // event prevent default
+        event.preventDefault();
+        
+        const commentValue = document.getElementById('commentId').value;
+        console.log(commentValue);
+        
+        // turn text from commentValue into a json object
+        const commentJson = JSON.stringify({ comment: commentValue });
+        console.log(commentJson);
+
+        const { comments_url } = this.state;
+        // make a fetch call to the comments_url
+        fetch(comments_url, { method: "POST", credentials: "same-origin", body: commentJson, headers: { "Content-Type": "application/json" } })
+            .then((response) => {
+                // if response is not ok, throw an error
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log('settingState');
+                // Update data for state after the comment is added 
+                this.setState({
+                    comments: data.comments,
+                });
+            })
+            .catch((error) => console.log(error));
     }
 
     // Returns HTML representing this component
     render() {
-        console.log("rendering post")
+        console.log("rendering post");
 
         // This line automatically assigns this.state.imgUrl to the const variable imgUrl
         // and this.state.owner to the const variable owner
         // set the state of all the variables from setState
         const { comments, comments_url, created, imgUrl, likes, owner, ownerImgUrl,
             ownerShowUrl, postShowUrl, postid, lognameLikesThis, buttonText, numLikes, likesUrl } = this.state;
+        
 
         // Render post image and post owner
         return (
-
-
-            // /* for each comment in comments, create an html div with the comment owner and text */
-            
-
-
             <div className="post">
 
                 <div className="profilePic">
@@ -180,10 +218,24 @@ class Post extends React.Component {
                 </div>
 
                 <div className="postComments">
-                    {}
+                 {/* for each comment in comments, create an html div with the comment owner and text */}
+                    {comments.map((comment) => (
+                        <div className="comment" key={comment.id}>
+                            <a href={comment.ownerShowUrl}>
+                                {comment.owner}
+                            </a>
+                            {comment.text}
+                        </div>
+                    ))}
+                </div>
+
+                <div className="createComment">
+                    {/* create an input field that is submitted with the enter key and handled by handleCreateComment */}
+                    <input id= "commentInput" type="text" onChange={event => setMessage(event.target.value)} onKeyDown={this.handleCommentKeyPress} />
                 </div>
 
             </div>
+
         );
     }
 }

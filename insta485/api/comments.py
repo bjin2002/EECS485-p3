@@ -38,7 +38,7 @@ def create_comment():
         "lognameOwnsThis": True,
         "owner": logname,
         "ownerShowUrl": "/users/" + logname + "/",
-        "text": "Comment sent from httpie",
+        "text": text,
         "url": "/api/v1/comments/" + str(new_comment["commentid"]) + "/"
     }
     return flask.jsonify(**context), 201
