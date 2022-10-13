@@ -133,24 +133,26 @@ class Post extends React.Component {
     handleCommentKeyPress(event) {
         // event prevent default
         event.preventDefault();
-        console.log("Key pressed: " + event.key);
 
+        const {value} = event.target;
+        
+
+        console.log(`Key pressed: ${  event.key}`);
+        console.log(`Value: ${  value}`);
+        
         if (event.key === 'Enter') {
             console.log('enter key pressed');
-            this.handleCreateComment(event);
+            this.handleCreateComment(value);
         }
     };
 
 
-    handleCreateComment(event) {
-        // event prevent default
-        event.preventDefault();
-        
-        const commentValue = document.getElementById('commentId').value;
-        console.log(commentValue);
+    handleCreateComment(newCommentText) {
+        // log the newCommentText
+        console.log(`New comment: ${  newCommentText}`);
         
         // turn text from commentValue into a json object
-        const commentJson = JSON.stringify({ comment: commentValue });
+        const commentJson = JSON.stringify({ comment: newCommentText });
         console.log(commentJson);
 
         const { comments_url } = this.state;
@@ -230,8 +232,10 @@ class Post extends React.Component {
                 </div>
 
                 <div className="createComment">
-                    {/* create an input field that is submitted with the enter key and handled by handleCreateComment */}
-                    <input id= "commentInput" type="text" onChange={event => setMessage(event.target.value)} onKeyDown={this.handleCommentKeyPress} />
+                    <form className="comment-form">
+                        {/* create an input field that is submitted with the enter key and handled by handleCreateComment */}
+                        <input id="commentInput" type="text" value="fdsafdsa" onKeyDown={ event => this.handleCommentKeyPress(event)} />
+                    </form>
                 </div>
 
             </div>
