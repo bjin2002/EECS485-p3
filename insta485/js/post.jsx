@@ -23,16 +23,20 @@ class Post extends React.Component {
             postShowUrl: "",
             postid: 0,
             lognameLikesThis: false,
-            numLikes: 0,
             likesUrl: "",
+            likeAction: "",
+            numLikes: 0,
+            
         };
-        this.likeHandlerSetStateofParent = this.likeHandlerSetStateofParent.bind(this);
+        this.handleLikeButton = this.handleLikeButton.bind(this);
     }
 
     handleLikeButton() {
         const { comments, comments_url, created, imgUrl, likes, owner, ownerImgUrl,
             ownerShowUrl, postShowUrl, postid, lognameLikesThis, numLikes, likesUrl } = this.state;
+        if (lognameLikesThis) {
 
+        }
     }
 
     // handleComments() {
@@ -63,6 +67,7 @@ class Post extends React.Component {
                     postShowUrl: data.postShowUrl,
                     postid: data.postid,
                     lognameLikesThis: data.likes.lognameLikesThis,
+                    likeAction = data.likes.lognameLikesThis ? 'Unlike' : 'Like'
                     numLikes: data.likes.numLikes,
                     likesUrl: data.likes.url,
                 });
@@ -104,9 +109,21 @@ class Post extends React.Component {
                 </div>
 
                 <div className="postLikes">
-                    <button onClick={this.handleClick} className="like-unlike-button" type="submit">
+                    <button onClick={this.handleLikeButton} className="like-unlike-button" type="submit">
                         {buttonText}
                     </button>
+                    if (numLikes === 1) {
+                        <div className="oneLike">
+                        {numLikes}
+                        {' like'}
+                        </div>
+                    }
+                    else {
+                        <div className="manyLikes">
+                            {numLikes}
+                            {' likes'}
+                        </div>
+                    }
                 </div>
 
                 <div className="postComments">
