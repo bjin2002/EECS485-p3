@@ -12,7 +12,7 @@ class Post extends React.Component {
         super(props);
         this.state = {
             comments: [],
-            comments_url: "",
+            // comments_url: "",
             created: "",
             imgUrl: "",
             owner: "",
@@ -51,7 +51,6 @@ class Post extends React.Component {
                 // Update state with the post's information
                 this.setState({
                     comments: data.comments,
-                    comments_url: data.comments_url,
                     created: moment(data.created).fromNow(),
                     imgUrl: data.imgUrl,
                     owner: data.owner,
@@ -76,7 +75,7 @@ class Post extends React.Component {
 
 
         console.log('like button clicked');
-        const { postid, lognameLikesThis, numLikes, likesUrl, } = this.state;
+        const { postid, lognameLikesThis, likesUrl, } = this.state;
 
         // if lognameLikesThis is true, set lognameLikesThis to false and subtract 1 from numLikes
         // else set lognameLikesThis to true and add 1 to numLikes
@@ -92,7 +91,7 @@ class Post extends React.Component {
                     }
                     return response.text();
                 })
-                .then((data) => {
+                .then(() => {
                     console.log('settingState');
                     // Update data for state after the like is removed
                     this.setState((prevState) => ({
@@ -146,7 +145,7 @@ class Post extends React.Component {
         event.preventDefault();
 
         console.log('enter key pressed');
-        const { comments_url, comments, newCommentText, postid} = this.state;
+        const { comments, newCommentText, postid} = this.state;
 
         // turn text from commentValue into a json object
         const commentJson = JSON.stringify({ text: newCommentText });
@@ -180,7 +179,7 @@ class Post extends React.Component {
         // event.preventDefault();
 
         console.log('delete button clicked');
-        const { comments, newCommentText, postid} = this.state;
+        const { comments} = this.state;
         const tempComments = comments;
 
         // make a fetch call to the deleteCommentUrl
@@ -193,11 +192,11 @@ class Post extends React.Component {
                 }
                 return response.text();
             })
-            .then((data) => {
+            .then(() => {
                 console.log('settingState');
                 // loop through comments and remove the comment that was deleted
                 // by comparing the comment's url to the deleteCommentUrl
-                for (let i = 0; i < tempComments.length; i++) {
+                for (let i = 0; i < tempComments.length; i += 1) {
                     if (tempComments[i].url === deleteCommentUrl) {
                         tempComments.splice(i, 1);
                         break;
@@ -219,7 +218,7 @@ class Post extends React.Component {
 
 
         console.log('like button clicked');
-        const { postid, lognameLikesThis, numLikes, likesUrl, } = this.state;
+        const { postid, lognameLikesThis, likesUrl, } = this.state;
         if(!lognameLikesThis) {
             console.log("like");
             console.log(likesUrl);
@@ -253,9 +252,8 @@ class Post extends React.Component {
         // This line automatically assigns this.state.imgUrl to the const variable imgUrl
         // and this.state.owner to the const variable owner
         // set the state of all the variables from setState
-        const { comments, comments_url, created, imgUrl, likes, owner, ownerImgUrl,
-            ownerShowUrl, postShowUrl, postid, lognameLikesThis, buttonText, numLikes, likesUrl, newCommentText } = this.state;
-
+        const { comments, created, imgUrl, owner, ownerImgUrl,
+            ownerShowUrl, postShowUrl, buttonText, numLikes, newCommentText } = this.state;
 
         // Render post image and post owner
         return (

@@ -1,7 +1,6 @@
 import React from "react";
-import PropTypes from "prop-types";
-import Post from "./post";
 import InfiniteScroll from "react-infinite-scroll-component";
+import Post from "./post";
 
 class feed extends React.Component {
     /* Display image and post owner of a single post
@@ -15,7 +14,7 @@ class feed extends React.Component {
 
         this.handleInfinteScroll = this.handleInfinteScroll.bind(this);
     }
-    
+
 
     // Runs when an instance is added to the DOM
     componentDidMount() {
@@ -41,8 +40,9 @@ class feed extends React.Component {
 
     handleInfinteScroll() {
         // event.preventDefault();
-        event.preventDefault();
-        
+
+        console.log("handleInfinteScroll");
+
         // This line automatically assigns this.props.url to the const variable url
         const { url } = this.state;
 
@@ -53,12 +53,14 @@ class feed extends React.Component {
                 return response.json();
             })
             .then((data) => {
-                // Update state with the post's information
-                this.setState((prevState) => ({
-                    next: data.next,
-                    results: prevState.results.concat(data.results),
-                    url: data.url
-                }));
+                setTimeout(() => {
+                    // Update state with the post's information
+                    this.setState((prevState) => ({
+                        next: data.next,
+                        results: prevState.results.concat(data.results),
+                        url: data.url
+                    }));
+                }, 1500);
             })
             .catch((error) => console.log(error));
     }
@@ -68,13 +70,13 @@ class feed extends React.Component {
         // This line automatically assigns this.state.imgUrl to the const variable imgUrl
         // and this.state.owner to the const variable owner
         // set the state of all the variables from setState
-        const { next, results, url } = this.state;
+        const { next, results } = this.state;
 
         // Render post image and post owner
         return (
             <InfiniteScroll
                 dataLength={results.length}
-                next={this.next}
+                next={this.handleInfinteScroll}
                 hasMore={next !== null}
                 loader={<h4>Loading...</h4>}
                 endMessage={
@@ -94,18 +96,8 @@ class feed extends React.Component {
                 </div>
 
             </InfiniteScroll>
-
-
-            
-
-            // 3. If bottom of the page is reached, then load more posts
-            
         );
     }
 }
-
-feed.propTypes = {
-    url: PropTypes.string.isRequired,
-};
 
 export default feed;
