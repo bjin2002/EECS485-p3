@@ -10,7 +10,6 @@ const root = createRoot(document.getElementById("reactEntry"));
 // Insert the post component into the DOM
 root.render(<Post url="/api/v1/posts/1" />); // TEMP
 
-root.render(<Feed url="/api/v1/posts/" />); // CORRECT
 
-// root.render(<feed />);
+// root.render(<feed />); // CORRECT
 

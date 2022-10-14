@@ -24,10 +24,14 @@ class Post extends React.Component {
             likesUrl: "",
             numLikes: 0,
             buttonText: "",
+            newCommentText: "",
 
         };
         this.handleLikeButton = this.handleLikeButton.bind(this);
         this.handleCommentKeyPress = this.handleCommentKeyPress.bind(this);
+        this.handleCommentCreate = this.handleCommentCreate.bind(this);
+        this.handleCommentDelete = this.handleCommentDelete.bind(this);
+        this.handleDoubleClick = this.handleDoubleClick.bind(this);
     }
 
 
@@ -62,13 +66,14 @@ class Post extends React.Component {
                     buttonText: data.likes.lognameLikesThis ? 'Unlike' : 'Like',
                     numLikes: data.likes.numLikes,
                     likesUrl: data.likes.url,
+                    newCommentText: "",
                 });
             })
             .catch((error) => console.log(error));
     }
 
     // Handles the like button when clicked
-    handleLikeButton() {
+    handleLikeButton(event) {
         // event prevent default
         event.preventDefault();
 
@@ -134,30 +139,26 @@ class Post extends React.Component {
         // event prevent default
         event.preventDefault();
 
-        const {value} = event.target;
-        
+        // set newCommentText to the value of the comment input
+        this.setState({newCommentText: event.target.value});
+        console.log(`Current Comment Value: ${event.target.value}`);
 
-        console.log(`Key pressed: ${  event.key}`);
-        console.log(`Value: ${  value}`);
-        
-        if (event.key === 'Enter') {
-            console.log('enter key pressed');
-            this.handleCreateComment(value);
-        }
     };
 
+    handleCommentCreate(event) {
+        // event prevent default
+        event.preventDefault();
 
-    handleCreateComment(newCommentText) {
-        // log the newCommentText
-        console.log(`New comment: ${  newCommentText}`);
-        
+        console.log('enter key pressed');
+        const { comments_url, comments, newCommentText, postid} = this.state;
+
         // turn text from commentValue into a json object
-        const commentJson = JSON.stringify({ comment: newCommentText });
-        console.log(commentJson);
+        const commentJson = JSON.stringify({ text: newCommentText });
+        console.log(`New comment JSON: ${commentJson}`);
 
-        const { comments_url } = this.state;
         // make a fetch call to the comments_url
-        fetch(comments_url, { method: "POST", credentials: "same-origin", body: commentJson, headers: { "Content-Type": "application/json" } })
+        const commentsUrl = `/api/v1/comments/?postid=${  postid}`;
+        fetch(commentsUrl, { method: "POST", credentials: "same-origin", body: commentJson, headers: { "Content-Type": "application/json" } })
             .then((response) => {
                 // if response is not ok, throw an error
                 if (!response.ok) {
@@ -169,10 +170,57 @@ class Post extends React.Component {
                 console.log('settingState');
                 // Update data for state after the comment is added 
                 this.setState({
-                    comments: data.comments,
+                    comments: comments.concat(data),
+                    newCommentText: "",
                 });
             })
             .catch((error) => console.log(error));
+        
+    }
+
+    handleCommentDelete(deleteCommentUrl) {
+        // // event prevent default
+        
+        // event.preventDefault();
+
+        console.log('delete button clicked');
+        const { comments, newCommentText, postid} = this.state;
+        const tempComments = comments;
+
+        // make a fetch call to the deleteCommentUrl
+        console.log(`Comment URL: ${deleteCommentUrl}`);
+        fetch(deleteCommentUrl, { method: "DELETE", credentials: "same-origin"})
+            .then((response) => {
+                // if response is not ok, throw an error
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                return response.text();
+            })
+            .then((data) => {
+                console.log('settingState');
+                // loop through comments and remove the comment that was deleted
+                // by comparing the comment's url to the deleteCommentUrl
+                for (let i = 0; i < tempComments.length; i++) {
+                    if (tempComments[i].url === deleteCommentUrl) {
+                        tempComments.splice(i, 1);
+                        break;
+                    }
+                }
+
+                // Update data for state after the comment is deleted
+                this.setState({
+                    comments: tempComments,
+                    newCommentText: "",
+                });
+            })
+            .catch((error) => console.log(error));
+        
+    }
+
+    handleDoubleClick(event) {
+        // event prevent default
+        
     }
 
     // Returns HTML representing this component
@@ -183,8 +231,8 @@ class Post extends React.Component {
         // and this.state.owner to the const variable owner
         // set the state of all the variables from setState
         const { comments, comments_url, created, imgUrl, likes, owner, ownerImgUrl,
-            ownerShowUrl, postShowUrl, postid, lognameLikesThis, buttonText, numLikes, likesUrl } = this.state;
-        
+            ownerShowUrl, postShowUrl, postid, lognameLikesThis, buttonText, numLikes, likesUrl, newCommentText } = this.state;
+
 
         // Render post image and post owner
         return (
@@ -205,6 +253,8 @@ class Post extends React.Component {
 
                 <div className="postImage">
                     <img src={imgUrl} alt="postImage" />
+                    {/* Handle the case where the image is double clicked */}
+                    <div className="postImageOverlay" onDoubleClick={this.handleDoubleClick}></div>
                 </div>
 
                 <div className="postLikes">
@@ -220,22 +270,35 @@ class Post extends React.Component {
                 </div>
 
                 <div className="postComments">
-                 {/* for each comment in comments, create an html div with the comment owner and text */}
+                    {/* for each comment in comments, create an html div with the comment owner and text */}
                     {comments.map((comment) => (
+                        // If the comment owner is the same as the logged in user, add the delete button
+                        comment.lognameOwnsThis ? (
+                            <div className="commentDeletable" key={comment.id}>
+                                <a href={comment.ownerShowUrl}>
+                                    {comment.owner}
+                                </a>
+                                {comment.text}
+                                <button onClick={() => {this.handleCommentDelete(comment.url);}} className="delete-comment-button" type="submit" value={comment.url}>
+                                    Delete
+                                </button>
+                            </div>
+                        ) : (
                         <div className="comment" key={comment.id}>
                             <a href={comment.ownerShowUrl}>
                                 {comment.owner}
                             </a>
                             {comment.text}
                         </div>
+                        )
                     ))}
                 </div>
 
                 <div className="createComment">
-                    
-                    <form className="comment-form">
+
+                    <form className="comment-form" onSubmit={this.handleCommentCreate}>
                         {/* create an input field that is submitted with the enter key and handled by handleCreateComment */}
-                        <input id="commentInput" type="text" value="" onKeyDown={ event => this.handleCommentKeyPress(event)} />
+                        <input id="commentInput" type="text" value={newCommentText} onChange={this.handleCommentKeyPress} />
                     </form>
                 </div>
 

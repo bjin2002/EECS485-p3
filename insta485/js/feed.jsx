@@ -18,7 +18,7 @@ class feed extends React.Component {
     componentDidMount() {
         // This line automatically assigns this.props.url to the const variable url
         const { url } = this.props;
-        
+
         // Call REST API to get the post's information
         fetch(url, { credentials: "same-origin" })
             .then((response) => {
@@ -41,7 +41,7 @@ class feed extends React.Component {
         // This line automatically assigns this.state.imgUrl to the const variable imgUrl
         // and this.state.owner to the const variable owner
         // set the state of all the variables from setState
-        const { next, results, url} = this.state;
+        const { next, results, url } = this.state;
 
         // Render post image and post owner
         return (
