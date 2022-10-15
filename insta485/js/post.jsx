@@ -35,9 +35,6 @@ class Post extends React.Component {
     }
 
 
-    // handleComments() {
-
-    // }
 
     // Runs when an instance is added to the DOM
     componentDidMount() {
@@ -134,7 +131,6 @@ class Post extends React.Component {
         }
     }
 
-
     handleCommentKeyPress(event) {
         // event prevent default
         event.preventDefault();
@@ -219,8 +215,35 @@ class Post extends React.Component {
     }
 
     handleDoubleClick(event) {
-        // event prevent default
-        
+        event.preventDefault();
+
+
+        console.log('like button clicked');
+        const { postid, lognameLikesThis, numLikes, likesUrl, } = this.state;
+        if(!lognameLikesThis) {
+            console.log("like");
+            console.log(likesUrl);
+
+            fetch(`/api/v1/likes/?postid=${postid}`, { method: "POST", credentials: "same-origin" })
+                .then((response) => {
+                    // if response is not ok, throw an error
+                    if (!response.ok) {
+                        throw Error(response.statusText);
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log('settingState');
+                    // Update data for state after the like is added 
+                    this.setState((prevState) => ({
+                        lognameLikesThis: true,
+                        numLikes: prevState.numLikes + 1,
+                        buttonText: "Unlike",
+                        likesUrl: data.url,
+                    }));
+                })
+                .catch((error) => console.log(error));
+        }        
     }
 
     // Returns HTML representing this component
@@ -252,9 +275,7 @@ class Post extends React.Component {
                 </div>
 
                 <div className="postImage">
-                    <img src={imgUrl} alt="postImage" />
-                    {/* Handle the case where the image is double clicked */}
-                    <div className="postImageOverlay" onDoubleClick={this.handleDoubleClick}></div>
+                    <img src={imgUrl} alt="postImage" onDoubleClick={this.handleDoubleClick}/>
                 </div>
 
                 <div className="postLikes">
