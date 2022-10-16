@@ -6,17 +6,17 @@
 > Host: ec2-18-222-174-92.us-east-2.compute.amazonaws.com
 > User-Agent: curl/7.79.1
 > Accept: */*
-> Cookie: login=eyJsb2duYW1lIjoiYXdkZW9yaW8ifQ.Y0uFFw._p_wcA4CQjjkujjJrl-psfqhmEU
+> Cookie: login=eyJsb2duYW1lIjoiYXdkZW9yaW8ifQ.Y0v2KQ.QNGSm9s6BOKVLmItjywzr-imwvo
 > 
 * Mark bundle as not supporting multiuse
 < HTTP/1.1 200 OK
 < Server: nginx/1.18.0 (Ubuntu)
-< Date: Sun, 16 Oct 2022 04:15:18 GMT
+< Date: Sun, 16 Oct 2022 12:17:24 GMT
 < Content-Type: text/html; charset=utf-8
-< Content-Length: 584
+< Content-Length: 526
 < Connection: keep-alive
 < Vary: Cookie
 < 
-{ [584 bytes data]
-100   584  100   584    0     0   6245      0 --:--:-- --:--:-- --:--:--  7209
+{ [526 bytes data]
+100   526  100   526    0     0   1966      0 --:--:-- --:--:-- --:--:--  2030
 * Connection #0 to host ec2-18-222-174-92.us-east-2.compute.amazonaws.com left intact
