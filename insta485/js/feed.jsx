@@ -88,9 +88,9 @@ class feed extends React.Component {
                 {/* 1. For each post in results, render a post component
                 This is where infinite scroll componenet will go */}
                 <div className="pagination" >
-                    {results.map((post) => (
+                    {results.map((post) => 
                         <Post url={post.url} key={post.postid}/>
-                    ))}
+                    )}
                 </div>
 
             </InfiniteScroll>

@@ -293,7 +293,7 @@ class Post extends React.Component {
                     {comments.map((comment) => (
                         // If the comment owner is the same as the logged in user, add the delete button
                         comment.lognameOwnsThis ? (
-                            <div className="commentDeletable" key={comment.id}>
+                            <div className="commentDeletable" key={comment.commentid}>
                                 <a href={comment.ownerShowUrl}>
                                     {comment.owner}
                                 </a>
@@ -303,7 +303,7 @@ class Post extends React.Component {
                                 </button>
                             </div>
                         ) : (
-                        <div className="comment" key={comment.id}>
+                        <div className="comment" key={comment.commentid}>
                             <a href={comment.ownerShowUrl}>
                                 {comment.owner}
                             </a>
