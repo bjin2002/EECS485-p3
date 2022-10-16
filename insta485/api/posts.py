@@ -27,12 +27,12 @@ def get_post_api():
 
     logname = insta485.api.helper.username_output()
 
-    DEFAULT_POSTS_SIZE = 10
-    DEFAULT_PAGE_NUM = 0
+    default_posts_size = 10
+    default_page_num = 0
     posts_size = flask.request.args.get(
-        "size", default=DEFAULT_POSTS_SIZE, type=int)
+        "size", default=default_posts_size, type=int)
     posts_page = flask.request.args.get(
-        "page", default=DEFAULT_PAGE_NUM, type=int)
+        "page", default=default_page_num, type=int)
     posts_postid_lte = flask.request.args.get(
         "postid_lte", default=float("inf"), type=int)
 
@@ -43,7 +43,7 @@ def get_post_api():
 
     connection = insta485.model.get_db()
 
-    # CODE FROM P2 TO GET PRUNED POSTS #########################################
+    # CODE FROM P2 TO GET PRUNED POSTS ##############################
     # posts query
     cur = connection.execute(
         "SELECT * "
@@ -70,27 +70,29 @@ def get_post_api():
     # We now have a list of all the posts that are by the logged in user OR
     # by a user that the logged in user is following
     for row in posts:
-        if row["owner"] in logged_user_following_list or row["owner"] == logname:
-            newDict = {}
-            newDict["postid"] = row["postid"]
-            pruned_posts.append(newDict)
+        if (row["owner"] in logged_user_following_list
+           or row["owner"] == logname):
+            new_dict = {}
+            new_dict["postid"] = row["postid"]
+            pruned_posts.append(new_dict)
     posts_postid_lte = pruned_posts[0]["postid"]
 
     # Now we must prune the posts to only include the posts that are less than
     # or equal to the postid_lte
     pruned_posts_limited = []
-    start_index = posts_size * (posts_page)
-    end_index = min(start_index + posts_size, len(pruned_posts))
+    
+    end_index = min(posts_size * (posts_page) + posts_size, len(pruned_posts))
 
-    if start_index == len(pruned_posts):
+    if posts_size * (posts_page) == len(pruned_posts):
         pruned_posts_limited = []
     else:
-        for i in range(start_index, end_index):
+        for i in range(posts_size * (posts_page), end_index):
             pruned_posts[i]["url"] = "/api/v1/posts/" + \
                 str(pruned_posts[i]["postid"]) + "/"
             pruned_posts_limited.append(pruned_posts[i])
 
-    # If the length of the result is greater than or equal to posts_size, then we have to set 'next'
+    # If the length of the result is greater than or
+    # equal to posts_size, then we have to set 'next'
     next_url = ""
     if len(pruned_posts_limited) >= posts_size:
         next_url = "/api/v1/posts/?size=" + \
@@ -192,7 +194,8 @@ def get_post(postid_url_slug):
         url = url[:-1]
 
     context = {"comments": comments,
-               "comments_url": "/api/v1/comments/?postid=" + str(postid_url_slug),
+               "comments_url":
+               "/api/v1/comments/?postid=" + str(postid_url_slug),
                "created": post["created"],
                "imgUrl": "/uploads/" + post["filename"],
                "likes": likes,
