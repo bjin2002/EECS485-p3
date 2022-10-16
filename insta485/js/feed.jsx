@@ -44,23 +44,21 @@ class feed extends React.Component {
         console.log("handleInfinteScroll");
 
         // This line automatically assigns this.props.url to the const variable url
-        const { url } = this.state;
+        const { next } = this.state;
 
         // Call REST API to get the post's information
-        fetch(url, { credentials: "same-origin" })
+        fetch(next, { credentials: "same-origin" })
             .then((response) => {
                 if (!response.ok) throw Error(response.statusText);
                 return response.json();
             })
             .then((data) => {
-                setTimeout(() => {
-                    // Update state with the post's information
-                    this.setState((prevState) => ({
-                        next: data.next,
-                        results: prevState.results.concat(data.results),
-                        url: data.url
-                    }));
-                }, 1500);
+                // Update state with the post's information
+                this.setState((prevState) => ({
+                    next: data.next,
+                    results: prevState.results.concat(data.results),
+                    url: data.url
+                }))
             })
             .catch((error) => console.log(error));
     }
@@ -91,7 +89,7 @@ class feed extends React.Component {
                 This is where infinite scroll componenet will go */}
                 <div className="pagination" >
                     {results.map((post) => (
-                        <Post url={post.url} />
+                        <Post url={post.url} key={post.postid}/>
                     ))}
                 </div>
 

@@ -51,7 +51,7 @@ class Post extends React.Component {
                 // Update state with the post's information
                 this.setState({
                     comments: data.comments,
-                    created: moment(data.created).fromNow(),
+                    created: moment.utc(data.created, 'YYYY-MM-DD hh:mm:ss').fromNow(),
                     imgUrl: data.imgUrl,
                     owner: data.owner,
                     ownerImgUrl: data.ownerImgUrl,

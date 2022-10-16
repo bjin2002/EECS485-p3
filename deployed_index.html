@@ -12,19 +12,20 @@
 <body>
     <a href="/">
         LOGO
+        <img src="/images/JG3.jpg" alt="Jeff Goldblum 3">
     </a>
 
     <!--If Logged in-->
     <div class="rightCorner">
         <a href="/explore/">explore</a>
-        <a href="{{ '/users/%s/'%logname }}">{{logname}}</a>
+        <a href="/users/awdeorio/">awdeorio</a>
     </div>
 
     <div id="reactEntry">
         Loading ...
     </div>
     <!-- Load JavaScript -->
-    <script type="text/javascript" src="{{ url_for('static', filename='js/bundle.js') }}"></script>
+    <script type="text/javascript" src="/static/js/bundle.js"></script>
 
 </body>
 
