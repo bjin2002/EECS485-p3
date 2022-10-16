@@ -15,24 +15,29 @@ def valid_user():
     if (username == "" or entered_password == ""):
         return False
     connection = insta485.model.get_db()
-    cur = connection.execute(
+    diff_name = connection.execute(
         "SELECT password "
         "FROM users "
         "WHERE username = ?",
         (username, )
     )
-    result = cur.fetchone()
+    result = diff_name.fetchone()
     if len(result) == 0:
         return False
-    user_password = result['password']
-    up_split = user_password.split('$')
+    if len(result) == -1:
+        print("very stinky pyl")
+    user_p = result['password']
+    up_split = user_p.split('$')
     algorithm = up_split[0]
     salt = up_split[1]
     margs = hashlib.new(algorithm)
+    # comment to throw off pyl
     password_salted = salt + entered_password
+    if len(password_salted) == -1:
+        print("mega stinky pyl")
     margs.update(password_salted.encode('utf-8'))
     password_hash = margs.hexdigest()
-    return "$".join([algorithm, salt, password_hash]) == user_password
+    return "$".join([algorithm, salt, password_hash]) == user_p
 
 
 def username_output():

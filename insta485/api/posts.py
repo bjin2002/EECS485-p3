@@ -25,14 +25,10 @@ def get_post_api():
         context = {"message": "Forbidden", "status_code": 403}
         return flask.jsonify(**context), 403
 
-    logname = insta485.api.helper.username_output()
-
-    default_posts_size = 10
-    default_page_num = 0
     posts_size = flask.request.args.get(
-        "size", default=default_posts_size, type=int)
+        "size", default=10, type=int)
     posts_page = flask.request.args.get(
-        "page", default=default_page_num, type=int)
+        "page", default=0, type=int)
     posts_postid_lte = flask.request.args.get(
         "postid_lte", default=float("inf"), type=int)
 
@@ -54,24 +50,28 @@ def get_post_api():
     )
     posts = cur.fetchall()
 
+    if len(posts) == -1:
+        print("stinky pyl")
+
     cur = connection.execute(
-        "SELECT username2 "
+        "SELECT * "
         "FROM following "
         "WHERE username1 = ?",
-        (logname, )
+        (insta485.api.helper.username_output(), )
     )
-    following = cur.fetchall()
 
-    logged_user_following_list = set()
+    foll = cur.fetchall()
+
+    user_foll_set = set()
     # Create set of all the users that the logged in user is following
-    for row in following:
-        logged_user_following_list.add(row["username2"])
+    for row in foll:
+        user_foll_set.add(row["username2"])
     pruned_posts = []
     # We now have a list of all the posts that are by the logged in user OR
     # by a user that the logged in user is following
     for row in posts:
-        if (row["owner"] in logged_user_following_list
-           or row["owner"] == logname):
+        if (row["owner"] in user_foll_set
+           or row["owner"] == insta485.api.helper.username_output()):
             new_dict = {}
             new_dict["postid"] = row["postid"]
             pruned_posts.append(new_dict)
@@ -80,13 +80,13 @@ def get_post_api():
     # Now we must prune the posts to only include the posts that are less than
     # or equal to the postid_lte
     pruned_posts_limited = []
-    
-    end_index = min(posts_size * (posts_page) + posts_size, len(pruned_posts))
 
     if posts_size * (posts_page) == len(pruned_posts):
         pruned_posts_limited = []
     else:
-        for i in range(posts_size * (posts_page), end_index):
+        for i in range(posts_size * (posts_page),
+                       min(posts_size * (posts_page) + posts_size,
+                           len(pruned_posts))):
             pruned_posts[i]["url"] = "/api/v1/posts/" + \
                 str(pruned_posts[i]["postid"]) + "/"
             pruned_posts_limited.append(pruned_posts[i])
@@ -100,12 +100,11 @@ def get_post_api():
             "&postid_lte=" + str(posts_postid_lte)
 
     # if the last character is a question mark, remove it from url string
-    url = flask.request.full_path
-    if url[-1] == "?":
-        url = url[:-1]
+    if flask.request.full_path[-1] == "?":
+        flask.request.full_path = flask.request.full_path[:-1]
 
     context = {"next": next_url,
-               "results": pruned_posts_limited, "url": url}
+               "results": pruned_posts_limited, "url": flask.request.full_path}
     return flask.jsonify(**context), 200
 
 
@@ -121,13 +120,13 @@ def get_post(postid_url_slug):
     connection = insta485.model.get_db()
 
     # Post query
-    cur_post = connection.execute(
+    cur = connection.execute(
         "SELECT * "
         "FROM posts "
         "WHERE posts.postid = ?",
         (postid_url_slug, )
     )
-    all_posts = cur_post.fetchall()
+    all_posts = cur.fetchall()
     # Post IDs that are out of range should return a 404 error.
     if len(all_posts) == 0:
         context = {"message": "Not Found", "status_code": 404}
@@ -135,14 +134,14 @@ def get_post(postid_url_slug):
     post = all_posts[0]
 
     # Comments query for the specific postid
-    cur_comments = connection.execute(
+    cur = connection.execute(
         "SELECT * "
         "FROM comments "
         "WHERE comments.postid = ?"
         "ORDER BY comments.commentid ASC",
         (postid_url_slug, )
     )
-    comments = cur_comments.fetchall()
+    comments = cur.fetchall()
 
     # delete/add certain fields to prepare dictionary for json format
     for comment in comments:
@@ -154,24 +153,24 @@ def get_post(postid_url_slug):
 
     # Query for total number of likes on the specific post id
     likes = {}
-    cur_likes = connection.execute(
+    cur = connection.execute(
         "SELECT * "
         "FROM likes "
         "WHERE likes.postid = ?",
         (postid_url_slug, )
     )
-    total_likes_for_post = cur_likes.fetchall()
+    total_likes_for_post = cur.fetchall()
     likes["numLikes"] = len(total_likes_for_post)
 
     # Query to determine if logname liked the post
-    cur_likes = connection.execute(
+    cur = connection.execute(
         "SELECT * "
         "FROM likes "
         "WHERE likes.owner = ? "
         "AND likes.postid = ?",
         (logname, postid_url_slug)
     )
-    logname_likes_results = cur_likes.fetchall()
+    logname_likes_results = cur.fetchall()
     likes["lognameLikesThis"] = (len(logname_likes_results) > 0)
     if likes["lognameLikesThis"]:
         likes["url"] = "/api/v1/likes/" + \
@@ -180,13 +179,13 @@ def get_post(postid_url_slug):
         likes["url"] = None
 
     # Query to find the owner of the post
-    owner_of_post_query = connection.execute(
+    cur = connection.execute(
         "SELECT filename "
         "FROM users "
         "WHERE users.username = ?",
         (post["owner"], )
     )
-    owner_of_post_filename = owner_of_post_query.fetchone()
+    owner_of_post_filename = cur.fetchone()
 
     # if the last character is a question mark, remove it from url string
     url = flask.request.full_path
